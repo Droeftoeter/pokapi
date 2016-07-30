@@ -1,0 +1,22 @@
+{
+    "name": "sjaakmoes/pokapi",
+    "require": {
+        "guzzlehttp/guzzle": "^6.2",
+        "nicklasw/s2-geometry-library-php": "dev-master"
+    },
+    "authors": [
+        {
+            "name": "Freek Post",
+            "email": "freek@kobalt.blue"
+        }
+    ],
+    "autoload": {
+        "psr-0": { "Pokapi\\": "src/" },
+        "psr-4": {
+            "POGOProtos\\": "POGOProtos/"
+        },
+        "files": [
+            "includes/protocolbuffers.inc.php"
+        ]
+    }
+}
