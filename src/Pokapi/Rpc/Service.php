@@ -9,6 +9,7 @@ use POGOProtos\Networking\Envelopes\RequestEnvelope_AuthInfo_JWT;
 use POGOProtos\Networking\Envelopes\ResponseEnvelope;
 use Pokapi\Authentication\Provider;
 use Pokapi\Authentication\Token;
+use Pokapi\Exception\NoResponse;
 use Pokapi\Rpc\Requests\DownloadSettings;
 use Pokapi\Rpc\Requests\GetHatchedEggs;
 use Pokapi\Rpc\Requests\GetInventory;
@@ -105,6 +106,8 @@ class Service
         if (!empty($responseEnvelope->getReturnsArray())) {
             return $request->getResponse(current($responseEnvelope->getReturnsArray()));
         }
+
+        throw new NoResponse();
     }
 
     /**
