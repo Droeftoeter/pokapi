@@ -62,7 +62,7 @@ class Geo
             $longitude,
             self::BEARING_NORTH
         ]];
-        $pulse = 0.1; // 100 Meters
+        $pulse = 0.07; // 70 Meters
         $xDistance = sqrt(3) * $pulse;
         $yDistance = 3 * ($pulse / 2);
         $location = [$latitude, $longitude];
