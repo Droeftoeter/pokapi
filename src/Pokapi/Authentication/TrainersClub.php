@@ -64,7 +64,7 @@ class TrainersClub implements Provider
     /**
      * {@inheritdoc}
      */
-    public function getToken() : string
+    public function getToken() : Token
     {
         // Initialize token
         $ticket = null;
@@ -123,7 +123,7 @@ class TrainersClub implements Provider
         parse_str($response->getBody()->getContents(), $data);
 
         if (isset($data['access_token'])) {
-            return $data['access_token'];
+            return new Token($data['access_token'], $data['expires']);
         }
 
         throw new \Exception("No access token :(");

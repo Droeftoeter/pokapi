@@ -18,7 +18,7 @@ interface Provider
     /**
      * Get the access token
      *
-     * @return string
+     * @return Token
      */
-    public function getToken() : string;
+    public function getToken() : Token;
 }

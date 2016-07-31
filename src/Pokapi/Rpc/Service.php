@@ -8,6 +8,7 @@ use POGOProtos\Networking\Envelopes\RequestEnvelope_AuthInfo;
 use POGOProtos\Networking\Envelopes\RequestEnvelope_AuthInfo_JWT;
 use POGOProtos\Networking\Envelopes\ResponseEnvelope;
 use Pokapi\Authentication\Provider;
+use Pokapi\Authentication\Token;
 use Pokapi\Rpc\Requests\DownloadSettings;
 use Pokapi\Rpc\Requests\GetHatchedEggs;
 use Pokapi\Rpc\Requests\GetInventory;
@@ -48,6 +49,11 @@ class Service
     protected $httpClient;
 
     /**
+     * @var Token
+     */
+    protected $token;
+
+    /**
      * Service constructor.
      *
      * @param Provider $authenticationProvider
@@ -85,7 +91,6 @@ class Service
         $responseEnvelope = new ResponseEnvelope($response->getBody()->getContents());
 
         if ($responseEnvelope->getAuthTicket()) {
-            echo "Received authticket... \r\n";
             $this->ticket = $responseEnvelope->getAuthTicket();
         }
 
@@ -94,7 +99,6 @@ class Service
         }
 
         if ($responseEnvelope->getStatusCode() === 53) {
-            echo "Retrying...."  . "\r\n";
             return $this->execute($request);
         }
 
@@ -113,7 +117,6 @@ class Service
         $fullEndpoint = 'https://' . $endpoint . '/rpc';
 
         if (!empty($endpoint) && $fullEndpoint !== $this->endpoint) {
-            echo "Got new endpoint: " . $fullEndpoint . "\r\n";
             $this->endpoint = $fullEndpoint;
         }
     }
@@ -146,13 +149,16 @@ class Service
         $envelope->setUnknown12(59);
 
         // Check if we have an authentication ticket
-        if ($this->ticket) {
+        if ($this->ticket && $this->ticket->getExpireTimestampMs() > time()) {
             $envelope->setAuthTicket($this->ticket);
         } else {
+            if (!$this->token || $this->token->hasExpired()){
+                $this->token = $this->authentication->getToken();
+            }
             $authInfo = new RequestEnvelope_AuthInfo();
             $authInfo->setProvider($this->authentication->getType());
             $authToken = new RequestEnvelope_AuthInfo_JWT();
-            $authToken->setContents($this->authentication->getToken());
+            $authToken->setContents($this->token->getToken());
             $authToken->setUnknown2(59);
             $authInfo->setToken($authToken);
             $envelope->setAuthInfo($authInfo);

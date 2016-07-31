@@ -1,8 +1,0 @@
-<?php
-return [
-    'username' => 'USERNAME',
-    'password' => 'PASSWORD',
-    'latitude' => 51.436596, // Eindhoven, NL
-    'longitude'=> 5.478001,
-    'altitude' => 68,
-];
