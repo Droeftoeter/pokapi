@@ -66,7 +66,8 @@ class Service
         $this->httpClient = new Client([
             'headers' => [
                 'User-Agent' => 'Niantic App'
-            ]
+            ],
+            'connect_timeout' => 30,
         ]);
     }
 

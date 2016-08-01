@@ -44,7 +44,8 @@ class TrainersClub implements Provider
     {
         $this->client = new Client([
             'cookies'    => true,
-            'verifyPeer' => false
+            'verifyPeer' => false,
+            'connect_timeout' => 30,
         ]);
 
         $this->username = $username;
