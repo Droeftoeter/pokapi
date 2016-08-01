@@ -81,9 +81,13 @@ class Service
     {
         $envelope = $this->createEnvelope($request);
 
-        $response = $this->httpClient->post($this->endpoint, [
-            'body' => $envelope->toProtobuf()
-        ]);
+        try {
+            $response = $this->httpClient->post($this->endpoint, [
+                'body' => $envelope->toProtobuf()
+            ]);
+        } catch(\Exception $e) {
+            throw new NoResponse();
+        }
 
         if ($response->getStatusCode() !== 200) {
             throw new \Exception("Wrong statuscode." . $response->getStatusCode());
