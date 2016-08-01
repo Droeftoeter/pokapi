@@ -137,11 +137,16 @@ class TrainersClub implements Provider
      */
     protected function fetchExecutionToken()
     {
-        $response = $this->client->get(self::LOGIN_URL, [
-            'headers' => [
-                'User-Agent' => 'niantic'
-            ]
-        ]);
+        try {
+            $response = $this->client->get(self::LOGIN_URL, [
+                'headers' => [
+                    'User-Agent' => 'niantic'
+                ]
+            ]);
+        } catch(ServerException $e) {
+            sleep(1);
+            return $this->fetchExecutionToken();
+        }
 
         if ($response->getStatusCode() !== 200) {
             throw new \Exception("Wrong Response " . $response->getStatusCode());

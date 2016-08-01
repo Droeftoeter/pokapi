@@ -107,6 +107,12 @@ class Service
             return $this->execute($request);
         }
 
+        if ($responseEnvelope->getStatusCode() === 102) {
+            $this->token = null;
+            $this->ticket = null;
+            return $this->execute($request);
+        }
+
         if (!empty($responseEnvelope->getReturnsArray())) {
             return $request->getResponse(current($responseEnvelope->getReturnsArray()));
         }

@@ -109,4 +109,35 @@ class Geo
 
         return $result;
     }
+
+
+    /**
+     * Calculate distance in meters between two points
+     *
+     * @param float $sourceLatitude
+     * @param float $sourceLongitude
+     * @param float $targetLatitude
+     * @param float $targetLongitude
+     *
+     * @return float
+     */
+    public static function calculateDistance(float $sourceLatitude, float $sourceLongitude, float $targetLatitude, float $targetLongitude) : float
+    {
+        $radSourceLat = deg2rad($sourceLatitude);
+        $radSourceLon = deg2rad($sourceLongitude);
+        $radTargetLat = deg2rad($targetLatitude);
+        $radTargetLon = deg2rad($targetLongitude);
+
+        $latitudeDelta = $radTargetLat - $radSourceLat;
+        $longitudeDelta = $radTargetLon - $radSourceLon;
+
+        $angle = 2 * asin(
+                sqrt(
+                    pow(sin($latitudeDelta / 2), 2) +
+                    cos($radSourceLat) * cos($radTargetLat) * pow(sin($longitudeDelta / 2), 2)
+                )
+            );
+
+        return $angle * Geo::EARTH_RADIUS_METERS;
+    }
 }
