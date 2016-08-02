@@ -3,6 +3,7 @@ namespace Pokapi\Rpc\Requests;
 
 use POGOProtos\Networking\Requests\Messages\DownloadSettingsMessage;
 use POGOProtos\Networking\Requests\RequestType;
+use POGOProtos\Networking\Responses\DownloadSettingsResponse;
 use Pokapi\Rpc\Request;
 
 /**
@@ -37,6 +38,6 @@ class DownloadSettings extends Request
      */
     public function getResponse(string $data)
     {
-        return null;
+        return new DownloadSettingsResponse($data);
     }
 }
