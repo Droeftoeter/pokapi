@@ -53,16 +53,17 @@ class Geo
      * @param float $latitude
      * @param float $longitude
      * @param int $steps
+     * @param float $radius
      * @return array
      */
-    public static function generateSteps(float $latitude, float $longitude, int $steps)
+    public static function generateSteps(float $latitude, float $longitude, int $steps, float $radius = 0.07)
     {
         $result = [[
             $latitude,
             $longitude,
             self::BEARING_NORTH
         ]];
-        $pulse = 0.07; // 70 Meters
+        $pulse = $radius;
         $xDistance = sqrt(3) * $pulse;
         $yDistance = 3 * ($pulse / 2);
         $location = [$latitude, $longitude];
