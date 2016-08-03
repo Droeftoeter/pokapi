@@ -18,9 +18,9 @@ class GetInventory extends Request
     /**
      * {@inheritDoc}
      */
-    public function getType() : int
+    public function getType() : RequestType
     {
-        return RequestType::GET_INVENTORY;
+        return RequestType::GET_INVENTORY();
     }
 
     /**

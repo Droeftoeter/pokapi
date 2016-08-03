@@ -2,18 +2,12 @@
 namespace Pokapi\Rpc;
 
 use GuzzleHttp\Client;
-use POGOProtos\Networking\Envelopes\AuthTicket;
 use POGOProtos\Networking\Envelopes\RequestEnvelope;
-use POGOProtos\Networking\Envelopes\RequestEnvelope_AuthInfo;
-use POGOProtos\Networking\Envelopes\RequestEnvelope_AuthInfo_JWT;
 use POGOProtos\Networking\Envelopes\ResponseEnvelope;
 use Pokapi\Authentication\Provider;
 use Pokapi\Authentication\Token;
 use Pokapi\Exception\NoResponse;
-use Pokapi\Rpc\Requests\DownloadSettings;
-use Pokapi\Rpc\Requests\GetHatchedEggs;
-use Pokapi\Rpc\Requests\GetInventory;
-use Pokapi\Rpc\Requests\GetPlayer;
+use Protobuf\AbstractMessage;
 
 /**
  * Class Service
@@ -25,7 +19,7 @@ class Service
 {
 
     /**
-     * @var AuthTicket|null
+     * @var \Pokapi\Rpc\AuthTicket|null
      */
     protected $ticket;
 
@@ -75,16 +69,17 @@ class Service
      * Execute a request
      *
      * @param Request $request
-     * @return null|\ProtobufMessage
+     * @return null|AbstractMessage
      * @throws \Exception
      */
     public function execute(Request $request)
     {
         $envelope = $this->createEnvelope($request);
 
+        $contents = $envelope->toStream()->getContents();
         try {
             $response = $this->httpClient->post($this->endpoint, [
-                'body' => $envelope->toProtobuf()
+                'body' => $contents
             ]);
         } catch(\Exception $e) {
             throw new NoResponse();
@@ -101,7 +96,7 @@ class Service
         $responseEnvelope = new ResponseEnvelope($response->getBody()->getContents());
 
         if ($responseEnvelope->getAuthTicket()) {
-            $this->ticket = $responseEnvelope->getAuthTicket();
+            $this->ticket = \Pokapi\Rpc\AuthTicket::fromProto($responseEnvelope->getAuthTicket());
         }
 
         if (!empty($responseEnvelope->getApiUrl())) {
@@ -118,8 +113,8 @@ class Service
             return $this->execute($request);
         }
 
-        if (!empty($responseEnvelope->getReturnsArray())) {
-            return $request->getResponse(current($responseEnvelope->getReturnsArray()));
+        if (!empty($responseEnvelope->getReturnsList())) {
+            return $request->getResponse(current($responseEnvelope->getReturnsList()));
         }
 
         throw new NoResponse();
@@ -167,22 +162,22 @@ class Service
         $envelope->setUnknown12(59);
 
         // Check if we have an authentication ticket
-        if ($this->ticket && $this->ticket->getExpireTimestampMs() > time()) {
-            $envelope->setAuthTicket($this->ticket);
+        if ($this->ticket && !$this->ticket->hasExpired()) {
+            $envelope->setAuthTicket($this->ticket->toProto());
         } else {
             if (!$this->token || $this->token->hasExpired()){
                 $this->token = $this->authentication->getToken();
             }
-            $authInfo = new RequestEnvelope_AuthInfo();
+            $authInfo = new RequestEnvelope\AuthInfo();
             $authInfo->setProvider($this->authentication->getType());
-            $authToken = new RequestEnvelope_AuthInfo_JWT();
+            $authToken = new RequestEnvelope\AuthInfo\JWT();
             $authToken->setContents($this->token->getToken());
             $authToken->setUnknown2(59);
             $authInfo->setToken($authToken);
             $envelope->setAuthInfo($authInfo);
         }
 
-        $envelope->addAllRequests([$request->toProtobufRequest()]);
+        $envelope->addRequests($request->toProtobufRequest());
         return $envelope;
     }
 }

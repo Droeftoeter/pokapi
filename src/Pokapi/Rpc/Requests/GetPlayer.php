@@ -17,9 +17,9 @@ class GetPlayer extends Request
     /**
      * {@inheritDoc}
      */
-    public function getType() : int
+    public function getType() : RequestType
     {
-        return RequestType::GET_PLAYER;
+        return RequestType::GET_PLAYER();
     }
 
     /**

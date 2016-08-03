@@ -20,9 +20,9 @@ class GetMapObjects extends Request
     /**
      * {@inheritDoc}
      */
-    public function getType() : int
+    public function getType() : RequestType
     {
-        return RequestType::GET_MAP_OBJECTS;
+        return RequestType::GET_MAP_OBJECTS();
     }
 
     /**
@@ -33,7 +33,9 @@ class GetMapObjects extends Request
         $message = new GetMapObjectsMessage();
         $message->setLatitude($this->getLatitude());
         $message->setLongitude($this->getLongitude());
-        $message->addAllCellId($this->getCellIds($this->getLatitude(), $this->getLongitude()));
+        foreach ($this->getCellIds($this->getLatitude(), $this->getLongitude()) as $cellId) {
+            $message->addCellId($cellId);
+        }
 
         return $message;
     }

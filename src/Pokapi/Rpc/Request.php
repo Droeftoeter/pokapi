@@ -1,6 +1,7 @@
 <?php
 namespace Pokapi\Rpc;
-use ProtobufMessage;
+use POGOProtos\Networking\Requests\RequestType;
+use Protobuf\AbstractMessage;
 
 /**
  * Base Rpc Request object
@@ -34,21 +35,23 @@ abstract class Request
     /**
      * Get the type
      *
-     * @return int
+     * @return RequestType
      */
-    abstract public function getType() : int;
+    abstract public function getType() : RequestType;
 
     /**
      * Get an optional message
      *
-     * @return ProtobufMessage|null
+     * @return AbstractMessage|null
      */
     abstract public function getMessage();
 
     /**
      * Get the response
      *
-     * @return ProtobufMessage|null
+     * @param string $data
+     *
+     * @return AbstractMessage|null
      */
     abstract public function getResponse(string $data);
 
@@ -122,7 +125,7 @@ abstract class Request
         $request->setRequestType($this->getType());
 
         if (($message = $this->getMessage()) !== null) {
-            $request->setRequestMessage($message->toProtobuf());
+            $request->setRequestMessage($message->toStream()->getContents());
         }
 
         return $request;

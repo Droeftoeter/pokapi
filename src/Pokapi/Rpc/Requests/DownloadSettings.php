@@ -18,9 +18,9 @@ class DownloadSettings extends Request
     /**
      * {@inheritDoc}
      */
-    public function getType() : int
+    public function getType() : RequestType
     {
-        return RequestType::DOWNLOAD_SETTINGS;
+        return RequestType::DOWNLOAD_SETTINGS();
     }
 
     /**
@@ -29,6 +29,7 @@ class DownloadSettings extends Request
     public function getMessage()
     {
         $message = new DownloadSettingsMessage();
+        //$message->setHash('b1f2bf509a025b7cd76e1c484e2a24411c50f061');
 
         return $message;
     }

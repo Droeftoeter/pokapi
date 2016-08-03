@@ -2,7 +2,9 @@
     "name": "sjaakmoes/pokapi",
     "require": {
         "guzzlehttp/guzzle": "^6.2",
-        "nicklasw/s2-geometry-library-php": "dev-master"
+        "nicklasw/s2-geometry-library-php": "dev-master",
+        "protobuf-php/protobuf": "dev-master",
+        "protobuf-php/google-protobuf-proto": "dev-master"
     },
     "authors": [
         {
@@ -14,9 +16,6 @@
         "psr-0": { "Pokapi\\": "src/" },
         "psr-4": {
             "POGOProtos\\": "POGOProtos/"
-        },
-        "files": [
-            "includes/protocolbuffers.inc.php"
-        ]
+        }
     }
 }

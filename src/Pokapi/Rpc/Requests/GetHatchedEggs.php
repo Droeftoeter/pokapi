@@ -17,9 +17,9 @@ class GetHatchedEggs extends Request
     /**
      * {@inheritDoc}
      */
-    public function getType() : int
+    public function getType() : RequestType
     {
-        return RequestType::GET_HATCHED_EGGS;
+        return RequestType::GET_HATCHED_EGGS();
     }
 
     /**

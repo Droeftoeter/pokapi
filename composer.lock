@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "5e0882d37321d596c04fb1234717c332",
-    "content-hash": "a64005eaeef33033966f5d356283bfad",
+    "hash": "c203005729282f437b0ea61c571704a4",
+    "content-hash": "bb3f7e35ae2a44a44b26d6cad6f249c9",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -184,12 +184,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/NicklasWallgren/s2-geometry-library-php.git",
-                "reference": "3c24101bc67c44e22d879c1c651525cda9a13222"
+                "reference": "7b70a341ba75290d526335f9874307df2306a540"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NicklasWallgren/s2-geometry-library-php/zipball/3c24101bc67c44e22d879c1c651525cda9a13222",
-                "reference": "3c24101bc67c44e22d879c1c651525cda9a13222",
+                "url": "https://api.github.com/repos/NicklasWallgren/s2-geometry-library-php/zipball/7b70a341ba75290d526335f9874307df2306a540",
+                "reference": "7b70a341ba75290d526335f9874307df2306a540",
                 "shasum": ""
             },
             "require-dev": {
@@ -203,7 +203,122 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "description": "Fork - Port of s2-geometry-library-java into PHP",
-            "time": "2016-07-28 17:01:29"
+            "time": "2016-08-02 15:06:32"
+        },
+        {
+            "name": "protobuf-php/google-protobuf-proto",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/protobuf-php/google-protobuf-proto.git",
+                "reference": "eee2685eb5a45a350c51a5ee416b4232682df08b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/protobuf-php/google-protobuf-proto/zipball/eee2685eb5a45a350c51a5ee416b4232682df08b",
+                "reference": "eee2685eb5a45a350c51a5ee416b4232682df08b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "protobuf-php/protobuf-plugin": "~0.1@dev"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "google\\protobuf": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabio B. Silva",
+                    "email": "fabio.bat.silva@gmail.com",
+                    "homepage": "https://github.com/FabioBatSilva"
+                }
+            ],
+            "description": "Protocol Buffers classes from Google's Protocol Buffers Compiler",
+            "homepage": "https://github.com/protobuf-php/google-protobuf-proto",
+            "keywords": [
+                "protobuf",
+                "protocol buffer",
+                "serializing"
+            ],
+            "time": "2016-02-17 02:51:35"
+        },
+        {
+            "name": "protobuf-php/protobuf",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/protobuf-php/protobuf.git",
+                "reference": "dfbbecac265ada667cadc1e7e9c3f603cb23cb14"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/protobuf-php/protobuf/zipball/dfbbecac265ada667cadc1e7e9c3f603cb23cb14",
+                "reference": "dfbbecac265ada667cadc1e7e9c3f603cb23cb14",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "instaclick/coding-standard": "~1.1",
+                "instaclick/object-calisthenics-sniffs": "dev-master",
+                "instaclick/symfony2-coding-standard": "dev-remaster",
+                "php-mock/php-mock-phpunit": "^0.2",
+                "phpunit/phpunit": "~4",
+                "protobuf-php/protobuf-plugin": "~0.1@dev",
+                "satooshi/php-coveralls": "~0.6",
+                "squizlabs/php_codesniffer": "~1.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Protobuf\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabio B. Silva",
+                    "email": "fabio.bat.silva@gmail.com",
+                    "homepage": "https://github.com/FabioBatSilva"
+                },
+                {
+                    "name": "Iván -DrSlump- Montes",
+                    "email": "drslump@pollinimini.net",
+                    "homepage": "https://github.com/drslump"
+                }
+            ],
+            "description": "PHP implementation of Google's Protocol Buffers",
+            "homepage": "https://github.com/protobuf-php/protobuf",
+            "keywords": [
+                "protobuf",
+                "protocol buffer",
+                "serializing"
+            ],
+            "time": "2016-07-28 13:47:46"
         },
         {
             "name": "psr/http-message",
@@ -259,7 +374,9 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "nicklasw/s2-geometry-library-php": 20
+        "nicklasw/s2-geometry-library-php": 20,
+        "protobuf-php/protobuf": 20,
+        "protobuf-php/google-protobuf-proto": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
