@@ -94,6 +94,10 @@ class Service
             throw new \Exception("Wrong statuscode." . $response->getStatusCode());
         }
 
+        if ($response->getBody()->getSize() === 0) {
+            throw new NoResponse();
+        }
+
         $responseEnvelope = new ResponseEnvelope($response->getBody()->getContents());
 
         if ($responseEnvelope->getAuthTicket()) {
