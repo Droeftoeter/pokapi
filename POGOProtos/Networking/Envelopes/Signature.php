@@ -67,25 +67,25 @@ class Signature extends \Protobuf\AbstractMessage
     protected $activity_status = null;
 
     /**
-     * location_hash1 optional uint32 = 10
+     * location_hash1 optional uint64 = 10
      *
      * @var int
      */
     protected $location_hash1 = null;
 
     /**
-     * location_hash2 optional uint32 = 20
+     * location_hash2 optional uint64 = 20
      *
      * @var int
      */
     protected $location_hash2 = null;
 
     /**
-     * unk22 optional bytes = 22
+     * session_hash optional bytes = 22
      *
      * @var \Protobuf\Stream
      */
-    protected $unk22 = null;
+    protected $session_hash = null;
 
     /**
      * timestamp optional uint64 = 23
@@ -95,11 +95,18 @@ class Signature extends \Protobuf\AbstractMessage
     protected $timestamp = null;
 
     /**
-     * request_hash repeated uint64 = 24
+     * request_hash repeated int64 = 24
      *
      * @var \Protobuf\Collection
      */
     protected $request_hash = null;
+
+    /**
+     * unknown25 optional int64 = 25
+     *
+     * @var int
+     */
+    protected $unknown25 = null;
 
     /**
      * Check if 'timestamp_since_start' has a value
@@ -356,37 +363,37 @@ class Signature extends \Protobuf\AbstractMessage
     }
 
     /**
-     * Check if 'unk22' has a value
+     * Check if 'session_hash' has a value
      *
      * @return bool
      */
-    public function hasUnk22()
+    public function hasSessionHash()
     {
-        return $this->unk22 !== null;
+        return $this->session_hash !== null;
     }
 
     /**
-     * Get 'unk22' value
+     * Get 'session_hash' value
      *
      * @return \Protobuf\Stream
      */
-    public function getUnk22()
+    public function getSessionHash()
     {
-        return $this->unk22;
+        return $this->session_hash;
     }
 
     /**
-     * Set 'unk22' value
+     * Set 'session_hash' value
      *
      * @param \Protobuf\Stream $value
      */
-    public function setUnk22($value = null)
+    public function setSessionHash($value = null)
     {
         if ($value !== null && ! $value instanceof \Protobuf\Stream) {
             $value = \Protobuf\Stream::wrap($value);
         }
 
-        $this->unk22 = $value;
+        $this->session_hash = $value;
     }
 
     /**
@@ -464,6 +471,36 @@ class Signature extends \Protobuf\AbstractMessage
     }
 
     /**
+     * Check if 'unknown25' has a value
+     *
+     * @return bool
+     */
+    public function hasUnknown25()
+    {
+        return $this->unknown25 !== null;
+    }
+
+    /**
+     * Get 'unknown25' value
+     *
+     * @return int
+     */
+    public function getUnknown25()
+    {
+        return $this->unknown25;
+    }
+
+    /**
+     * Set 'unknown25' value
+     *
+     * @param int $value
+     */
+    public function setUnknown25($value = null)
+    {
+        $this->unknown25 = $value;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function extensions()
@@ -506,9 +543,10 @@ class Signature extends \Protobuf\AbstractMessage
             'activity_status' => null,
             'location_hash1' => null,
             'location_hash2' => null,
-            'unk22' => null,
+            'session_hash' => null,
             'timestamp' => null,
-            'request_hash' => []
+            'request_hash' => [],
+            'unknown25' => null
         ], $values);
 
         $message->setTimestampSinceStart($values['timestamp_since_start']);
@@ -518,8 +556,9 @@ class Signature extends \Protobuf\AbstractMessage
         $message->setActivityStatus($values['activity_status']);
         $message->setLocationHash1($values['location_hash1']);
         $message->setLocationHash2($values['location_hash2']);
-        $message->setUnk22($values['unk22']);
+        $message->setSessionHash($values['session_hash']);
         $message->setTimestamp($values['timestamp']);
+        $message->setUnknown25($values['unknown25']);
 
         foreach ($values['location_fix'] as $item) {
             $message->addLocationFix($item);
@@ -584,18 +623,18 @@ class Signature extends \Protobuf\AbstractMessage
                 \google\protobuf\FieldDescriptorProto::fromArray([
                     'number' => 10,
                     'name' => 'location_hash1',
-                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_UINT32(),
+                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_UINT64(),
                     'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_OPTIONAL()
                 ]),
                 \google\protobuf\FieldDescriptorProto::fromArray([
                     'number' => 20,
                     'name' => 'location_hash2',
-                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_UINT32(),
+                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_UINT64(),
                     'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_OPTIONAL()
                 ]),
                 \google\protobuf\FieldDescriptorProto::fromArray([
                     'number' => 22,
-                    'name' => 'unk22',
+                    'name' => 'session_hash',
                     'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_BYTES(),
                     'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_OPTIONAL()
                 ]),
@@ -608,8 +647,14 @@ class Signature extends \Protobuf\AbstractMessage
                 \google\protobuf\FieldDescriptorProto::fromArray([
                     'number' => 24,
                     'name' => 'request_hash',
-                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_UINT64(),
+                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_INT64(),
                     'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_REPEATED()
+                ]),
+                \google\protobuf\FieldDescriptorProto::fromArray([
+                    'number' => 25,
+                    'name' => 'unknown25',
+                    'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_INT64(),
+                    'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_OPTIONAL()
                 ]),
             ],
         ]);
@@ -686,9 +731,9 @@ class Signature extends \Protobuf\AbstractMessage
             $writer->writeVarint($stream, $this->location_hash2);
         }
 
-        if ($this->unk22 !== null) {
+        if ($this->session_hash !== null) {
             $writer->writeVarint($stream, 178);
-            $writer->writeByteStream($stream, $this->unk22);
+            $writer->writeByteStream($stream, $this->session_hash);
         }
 
         if ($this->timestamp !== null) {
@@ -701,6 +746,11 @@ class Signature extends \Protobuf\AbstractMessage
                 $writer->writeVarint($stream, 192);
                 $writer->writeVarint($stream, $val);
             }
+        }
+
+        if ($this->unknown25 !== null) {
+            $writer->writeVarint($stream, 200);
+            $writer->writeVarint($stream, $this->unknown25);
         }
 
         if ($this->extensions !== null) {
@@ -825,7 +875,7 @@ class Signature extends \Protobuf\AbstractMessage
             }
 
             if ($tag === 10) {
-                \Protobuf\WireFormat::assertWireType($wire, 13);
+                \Protobuf\WireFormat::assertWireType($wire, 4);
 
                 $this->location_hash1 = $reader->readVarint($stream);
 
@@ -833,7 +883,7 @@ class Signature extends \Protobuf\AbstractMessage
             }
 
             if ($tag === 20) {
-                \Protobuf\WireFormat::assertWireType($wire, 13);
+                \Protobuf\WireFormat::assertWireType($wire, 4);
 
                 $this->location_hash2 = $reader->readVarint($stream);
 
@@ -843,7 +893,7 @@ class Signature extends \Protobuf\AbstractMessage
             if ($tag === 22) {
                 \Protobuf\WireFormat::assertWireType($wire, 12);
 
-                $this->unk22 = $reader->readByteStream($stream);
+                $this->session_hash = $reader->readByteStream($stream);
 
                 continue;
             }
@@ -857,13 +907,21 @@ class Signature extends \Protobuf\AbstractMessage
             }
 
             if ($tag === 24) {
-                \Protobuf\WireFormat::assertWireType($wire, 4);
+                \Protobuf\WireFormat::assertWireType($wire, 3);
 
                 if ($this->request_hash === null) {
                     $this->request_hash = new \Protobuf\ScalarCollection();
                 }
 
                 $this->request_hash->add($reader->readVarint($stream));
+
+                continue;
+            }
+
+            if ($tag === 25) {
+                \Protobuf\WireFormat::assertWireType($wire, 3);
+
+                $this->unknown25 = $reader->readVarint($stream);
 
                 continue;
             }
@@ -954,9 +1012,9 @@ class Signature extends \Protobuf\AbstractMessage
             $size += $calculator->computeVarintSize($this->location_hash2);
         }
 
-        if ($this->unk22 !== null) {
+        if ($this->session_hash !== null) {
             $size += 2;
-            $size += $calculator->computeByteStreamSize($this->unk22);
+            $size += $calculator->computeByteStreamSize($this->session_hash);
         }
 
         if ($this->timestamp !== null) {
@@ -969,6 +1027,11 @@ class Signature extends \Protobuf\AbstractMessage
                 $size += 2;
                 $size += $calculator->computeVarintSize($val);
             }
+        }
+
+        if ($this->unknown25 !== null) {
+            $size += 2;
+            $size += $calculator->computeVarintSize($this->unknown25);
         }
 
         if ($this->extensions !== null) {
@@ -991,9 +1054,10 @@ class Signature extends \Protobuf\AbstractMessage
         $this->activity_status = null;
         $this->location_hash1 = null;
         $this->location_hash2 = null;
-        $this->unk22 = null;
+        $this->session_hash = null;
         $this->timestamp = null;
         $this->request_hash = null;
+        $this->unknown25 = null;
     }
 
     /**
@@ -1013,9 +1077,10 @@ class Signature extends \Protobuf\AbstractMessage
         $this->activity_status = ($message->activity_status !== null) ? $message->activity_status : $this->activity_status;
         $this->location_hash1 = ($message->location_hash1 !== null) ? $message->location_hash1 : $this->location_hash1;
         $this->location_hash2 = ($message->location_hash2 !== null) ? $message->location_hash2 : $this->location_hash2;
-        $this->unk22 = ($message->unk22 !== null) ? $message->unk22 : $this->unk22;
+        $this->session_hash = ($message->session_hash !== null) ? $message->session_hash : $this->session_hash;
         $this->timestamp = ($message->timestamp !== null) ? $message->timestamp : $this->timestamp;
         $this->request_hash = ($message->request_hash !== null) ? $message->request_hash : $this->request_hash;
+        $this->unknown25 = ($message->unknown25 !== null) ? $message->unknown25 : $this->unknown25;
     }
 
 

@@ -32,11 +32,11 @@ class LocationFix extends \Protobuf\AbstractMessage
     protected $provider = null;
 
     /**
-     * timestamp_since_start optional uint64 = 2
+     * timestamp_snapshot optional uint64 = 2
      *
      * @var int
      */
-    protected $timestamp_since_start = null;
+    protected $timestamp_snapshot = null;
 
     /**
      * latitude optional float = 13
@@ -125,33 +125,33 @@ class LocationFix extends \Protobuf\AbstractMessage
     }
 
     /**
-     * Check if 'timestamp_since_start' has a value
+     * Check if 'timestamp_snapshot' has a value
      *
      * @return bool
      */
-    public function hasTimestampSinceStart()
+    public function hasTimestampSnapshot()
     {
-        return $this->timestamp_since_start !== null;
+        return $this->timestamp_snapshot !== null;
     }
 
     /**
-     * Get 'timestamp_since_start' value
+     * Get 'timestamp_snapshot' value
      *
      * @return int
      */
-    public function getTimestampSinceStart()
+    public function getTimestampSnapshot()
     {
-        return $this->timestamp_since_start;
+        return $this->timestamp_snapshot;
     }
 
     /**
-     * Set 'timestamp_since_start' value
+     * Set 'timestamp_snapshot' value
      *
      * @param int $value
      */
-    public function setTimestampSinceStart($value = null)
+    public function setTimestampSnapshot($value = null)
     {
-        $this->timestamp_since_start = $value;
+        $this->timestamp_snapshot = $value;
     }
 
     /**
@@ -430,7 +430,7 @@ class LocationFix extends \Protobuf\AbstractMessage
         $message = new self();
         $values  = array_merge([
             'provider' => null,
-            'timestamp_since_start' => null,
+            'timestamp_snapshot' => null,
             'latitude' => null,
             'longitude' => null,
             'horizontal_accuracy' => null,
@@ -442,7 +442,7 @@ class LocationFix extends \Protobuf\AbstractMessage
         ], $values);
 
         $message->setProvider($values['provider']);
-        $message->setTimestampSinceStart($values['timestamp_since_start']);
+        $message->setTimestampSnapshot($values['timestamp_snapshot']);
         $message->setLatitude($values['latitude']);
         $message->setLongitude($values['longitude']);
         $message->setHorizontalAccuracy($values['horizontal_accuracy']);
@@ -471,7 +471,7 @@ class LocationFix extends \Protobuf\AbstractMessage
                 ]),
                 \google\protobuf\FieldDescriptorProto::fromArray([
                     'number' => 2,
-                    'name' => 'timestamp_since_start',
+                    'name' => 'timestamp_snapshot',
                     'type' => \google\protobuf\FieldDescriptorProto\Type::TYPE_UINT64(),
                     'label' => \google\protobuf\FieldDescriptorProto\Label::LABEL_OPTIONAL()
                 ]),
@@ -556,9 +556,9 @@ class LocationFix extends \Protobuf\AbstractMessage
             $writer->writeString($stream, $this->provider);
         }
 
-        if ($this->timestamp_since_start !== null) {
+        if ($this->timestamp_snapshot !== null) {
             $writer->writeVarint($stream, 16);
-            $writer->writeVarint($stream, $this->timestamp_since_start);
+            $writer->writeVarint($stream, $this->timestamp_snapshot);
         }
 
         if ($this->latitude !== null) {
@@ -646,7 +646,7 @@ class LocationFix extends \Protobuf\AbstractMessage
             if ($tag === 2) {
                 \Protobuf\WireFormat::assertWireType($wire, 4);
 
-                $this->timestamp_since_start = $reader->readVarint($stream);
+                $this->timestamp_snapshot = $reader->readVarint($stream);
 
                 continue;
             }
@@ -749,9 +749,9 @@ class LocationFix extends \Protobuf\AbstractMessage
             $size += $calculator->computeStringSize($this->provider);
         }
 
-        if ($this->timestamp_since_start !== null) {
+        if ($this->timestamp_snapshot !== null) {
             $size += 1;
-            $size += $calculator->computeVarintSize($this->timestamp_since_start);
+            $size += $calculator->computeVarintSize($this->timestamp_snapshot);
         }
 
         if ($this->latitude !== null) {
@@ -807,7 +807,7 @@ class LocationFix extends \Protobuf\AbstractMessage
     public function clear()
     {
         $this->provider = null;
-        $this->timestamp_since_start = null;
+        $this->timestamp_snapshot = null;
         $this->latitude = null;
         $this->longitude = null;
         $this->horizontal_accuracy = null;
@@ -828,7 +828,7 @@ class LocationFix extends \Protobuf\AbstractMessage
         }
 
         $this->provider = ($message->provider !== null) ? $message->provider : $this->provider;
-        $this->timestamp_since_start = ($message->timestamp_since_start !== null) ? $message->timestamp_since_start : $this->timestamp_since_start;
+        $this->timestamp_snapshot = ($message->timestamp_snapshot !== null) ? $message->timestamp_snapshot : $this->timestamp_snapshot;
         $this->latitude = ($message->latitude !== null) ? $message->latitude : $this->latitude;
         $this->longitude = ($message->longitude !== null) ? $message->longitude : $this->longitude;
         $this->horizontal_accuracy = ($message->horizontal_accuracy !== null) ? $message->horizontal_accuracy : $this->horizontal_accuracy;
