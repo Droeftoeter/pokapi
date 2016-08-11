@@ -11,6 +11,7 @@ use Pokapi\Authentication\Provider;
 use Pokapi\Authentication\Token;
 use Pokapi\Exception\NoResponse;
 use Pokapi\Rpc\AuthTicket;
+use Pokapi\Utility\Signature as SignatureUtil;
 use Protobuf\AbstractMessage;
 
 /**
@@ -239,7 +240,7 @@ class Service
 
         $signature = new Signature();
         $signature->setLocationHash1(
-            \Pokapi\Utility\Signature::generateLocation1(
+            SignatureUtil::generateLocation1(
                 $serializedTicket,
                 $position->getLatitude(),
                 $position->getLongitude(),
@@ -248,7 +249,7 @@ class Service
         );
 
         $signature->setLocationHash2(
-            \Pokapi\Utility\Signature::generateLocation2(
+            SignatureUtil::generateLocation2(
                 $position->getLatitude(),
                 $position->getLongitude(),
                 $position->getAltitude()
@@ -257,7 +258,7 @@ class Service
 
         foreach ($requests as $request) {
             $signature->addRequestHash(
-                \Pokapi\Utility\Signature::generateRequestHash(
+                SignatureUtil::generateRequestHash(
                     $serializedTicket,
                     $request->toProtobufRequest()->toStream()->getContents()
                 )
