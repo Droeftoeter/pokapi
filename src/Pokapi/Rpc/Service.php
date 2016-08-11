@@ -101,12 +101,18 @@ class Service
             throw new NoResponse();
         }
 
+        if ($response->getBody()->isReadable())
+
         if ($response->getStatusCode() !== 200) {
-            throw new \Exception("Wrong statuscode." . $response->getStatusCode());
+            throw new \Exception("Wrong statuscode: " . $response->getStatusCode());
         }
 
-        if ($response->getBody()->getSize() === 0) {
-            throw new NoResponse();
+        if (!$response->getBody()->isReadable()) {
+            throw new NoResponse("Unreadable stream.");
+        }
+
+        if ($response->getBody()->getSize() < 1) {
+            throw new NoResponse("Empty body.");
         }
 
         $responseEnvelope = new ResponseEnvelope($response->getBody()->getContents());
