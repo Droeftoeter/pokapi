@@ -29,8 +29,7 @@ class DownloadSettings extends Request
     public function getMessage()
     {
         $message = new DownloadSettingsMessage();
-        //$message->setHash('b1f2bf509a025b7cd76e1c484e2a24411c50f061');
-
+        $message->setHash('2788184af4004004d6ab0740f7632983332106f6');
         return $message;
     }
 

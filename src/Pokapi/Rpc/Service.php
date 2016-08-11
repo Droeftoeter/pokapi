@@ -10,6 +10,7 @@ use POGOProtos\Networking\Envelopes\Unknown6;
 use Pokapi\Authentication\Provider;
 use Pokapi\Authentication\Token;
 use Pokapi\Exception\NoResponse;
+use Pokapi\Rpc\AuthTicket;
 use Protobuf\AbstractMessage;
 
 /**
@@ -22,7 +23,7 @@ class Service
 {
 
     /**
-     * @var \Pokapi\Rpc\AuthTicket|null
+     * @var AuthTicket|null
      */
     protected $ticket;
 
@@ -76,17 +77,19 @@ class Service
     }
 
     /**
-     * Execute a request
+     * Execute multiple requests
      *
-     * @param Request $request
+     * @param array $requests
      * @param Position $position
      *
-     * @return null|AbstractMessage
+     * @return \Protobuf\Collection
+     *
+     * @throws NoResponse
      * @throws \Exception
      */
-    public function execute(Request $request, Position $position)
+    public function batchExecute(array $requests, Position $position)
     {
-        $envelope = $this->createEnvelope($request, $position);
+        $envelope = $this->createEnvelope($requests, $position);
 
         $contents = $envelope->toStream()->getContents();
         try {
@@ -108,7 +111,7 @@ class Service
         $responseEnvelope = new ResponseEnvelope($response->getBody()->getContents());
 
         if ($responseEnvelope->getAuthTicket()) {
-            $this->ticket = \Pokapi\Rpc\AuthTicket::fromProto($responseEnvelope->getAuthTicket());
+            $this->ticket = AuthTicket::fromProto($responseEnvelope->getAuthTicket());
         }
 
         if (!empty($responseEnvelope->getApiUrl())) {
@@ -116,20 +119,35 @@ class Service
         }
 
         if ($responseEnvelope->getStatusCode() === 53) {
-            return $this->execute($request, $position);
+            return $this->batchExecute($requests, $position);
         }
 
         if ($responseEnvelope->getStatusCode() === 102) {
             $this->token = null;
             $this->ticket = null;
-            return $this->execute($request, $position);
+            return $this->batchExecute($requests, $position);
         }
 
         if (!empty($responseEnvelope->getReturnsList())) {
-            return $request->getResponse(current($responseEnvelope->getReturnsList()));
+            return $responseEnvelope->getReturnsList();
         }
 
         throw new NoResponse();
+    }
+
+    /**
+     * Execute a request
+     *
+     * @param Request $request
+     * @param Position $position
+     *
+     * @return null|AbstractMessage
+     * @throws \Exception
+     */
+    public function execute(Request $request, Position $position)
+    {
+        $response = $this->batchExecute([$request], $position);
+        return $request->getResponse(current($response));
     }
 
     /**
@@ -159,12 +177,12 @@ class Service
     /**
      * Create a request envelope
      *
-     * @param Request $request
+     * @param Request[] $requests
      * @param Position $position
      *
      * @return RequestEnvelope
      */
-    protected function createEnvelope(Request $request, Position $position) : RequestEnvelope
+    protected function createEnvelope(array $requests, Position $position) : RequestEnvelope
     {
         $envelope = new RequestEnvelope();
         $envelope->setStatusCode(2);
@@ -190,14 +208,16 @@ class Service
             $envelope->setAuthInfo($authInfo);
         }
 
-        $envelope->addRequests($request->toProtobufRequest());
+        foreach ($requests as $request) {
+            $envelope->addRequests($request->toProtobufRequest());
+        }
 
         if ($this->ticket && !$this->ticket->hasExpired()) {
             $unknown6 = new Unknown6();
             $unknown6->setRequestType(6);
 
             $unknown2 = new Unknown6\Unknown2();
-            $unknown2->setEncryptedSignature($this->generateSignature($request, $position));
+            $unknown2->setEncryptedSignature($this->generateSignature($requests, $position));
             $unknown6->setUnknown2($unknown2);
             $envelope->setUnknown6($unknown6);
         }
@@ -205,7 +225,15 @@ class Service
         return $envelope;
     }
 
-    protected function generateSignature(Request $request, Position $position) : string
+    /**
+     * Generate the signature
+     *
+     * @param Request[] $requests
+     * @param Position $position
+     *
+     * @return string
+     */
+    protected function generateSignature(array $requests, Position $position) : string
     {
         $serializedTicket = $this->ticket->toProto()->toStream()->getContents();
 
@@ -227,12 +255,14 @@ class Service
             )
         );
 
-        $signature->addRequestHash(
-            \Pokapi\Utility\Signature::generateRequestHash(
-                $serializedTicket,
-                $request->toProtobufRequest()->toStream()->getContents()
-            )
-        );
+        foreach ($requests as $request) {
+            $signature->addRequestHash(
+                \Pokapi\Utility\Signature::generateRequestHash(
+                    $serializedTicket,
+                    $request->toProtobufRequest()->toStream()->getContents()
+                )
+            );
+        }
 
         $time = round(microtime(true) * 1000);
         $signature->setSessionHash(random_bytes(32));

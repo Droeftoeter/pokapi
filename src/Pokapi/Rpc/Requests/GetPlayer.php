@@ -1,6 +1,7 @@
 <?php
 namespace Pokapi\Rpc\Requests;
 
+use POGOProtos\Networking\Requests\Messages\GetPlayerMessage;
 use POGOProtos\Networking\Requests\RequestType;
 use POGOProtos\Networking\Responses\GetPlayerResponse;
 use Pokapi\Rpc\Request;
@@ -27,7 +28,9 @@ class GetPlayer extends Request
      */
     public function getMessage()
     {
-        return null;
+        $player = new GetPlayerMessage();
+        $player->setAppVersion('0.33.0');
+        return $player;
     }
 
     /**

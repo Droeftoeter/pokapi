@@ -1,18 +1,18 @@
 <?php
 namespace Pokapi\Rpc\Requests;
 
-use POGOProtos\Networking\Requests\Messages\GetHatchedEggsMessage;
+use POGOProtos\Networking\Requests\Messages\CheckAwardedBadgesMessage;
+use POGOProtos\Networking\Responses\CheckAwardedBadgesResponse;
 use POGOProtos\Networking\Requests\RequestType;
-use POGOProtos\Networking\Responses\GetHatchedEggsResponse;
 use Pokapi\Rpc\Request;
 
 /**
- * Class GetHatchedEggs
+ * Class CheckAwardedBadges
  *
  * @package Pokapi\Rpc\Requests
  * @author Freek Post <freek@kobalt.blue>
  */
-class GetHatchedEggs extends Request
+class CheckAwardedBadges extends Request
 {
 
     /**
@@ -20,7 +20,7 @@ class GetHatchedEggs extends Request
      */
     public function getType() : RequestType
     {
-        return RequestType::GET_HATCHED_EGGS();
+        return RequestType::CHECK_AWARDED_BADGES();
     }
 
     /**
@@ -28,7 +28,7 @@ class GetHatchedEggs extends Request
      */
     public function getMessage()
     {
-        return new GetHatchedEggsMessage();
+        return new CheckAwardedBadgesMessage();
     }
 
     /**
@@ -36,6 +36,6 @@ class GetHatchedEggs extends Request
      */
     public function getResponse(string $data)
     {
-        return new GetHatchedEggsResponse();
+        return new CheckAwardedBadgesResponse();
     }
 }
