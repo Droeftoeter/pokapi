@@ -6,6 +6,7 @@ use POGOProtos\Networking\Responses\GetInventoryResponse;
 use POGOProtos\Networking\Responses\GetMapObjectsResponse;
 use POGOProtos\Networking\Responses\GetPlayerResponse;
 use Pokapi\Authentication\Provider;
+use Pokapi\Rpc\Position;
 use Pokapi\Rpc\Requests\DownloadSettings;
 use Pokapi\Rpc\Requests\GetInventory;
 use Pokapi\Rpc\Requests\GetMapObjects;
@@ -22,19 +23,9 @@ class API
 {
 
     /**
-     * @var float
+     * @var Position
      */
-    protected $latitude;
-
-    /**
-     * @var float
-     */
-    protected $longitude;
-
-    /**
-     * @var float
-     */
-    protected $altitude;
+    protected $position;
 
     /**
      * @var Service
@@ -62,10 +53,8 @@ class API
      * @param float $longitude
      * @param float $altitude
      */
-    public function setLocation(float $latitude, float $longitude, float $altitude = 0) {
-        $this->latitude = $latitude;
-        $this->longitude = $longitude;
-        $this->altitude = $altitude;
+    public function setLocation(float $latitude, float $longitude, float $altitude = 8) {
+        $this->position = new Position($latitude, $longitude, $altitude);
     }
 
     /**
@@ -75,8 +64,8 @@ class API
      */
     public function getPlayerData() : GetPlayerResponse
     {
-        $request = new GetPlayer($this->latitude, $this->longitude, $this->altitude);
-        return $this->service->execute($request);
+        $request = new GetPlayer();
+        return $this->service->execute($request, $this->position);
     }
 
     /**
@@ -86,8 +75,8 @@ class API
      */
     public function getInventory() : GetInventoryResponse
     {
-        $request = new GetInventory($this->latitude, $this->longitude, $this->altitude);
-        return $this->service->execute($request);
+        $request = new GetInventory();
+        return $this->service->execute($request, $this->position);
     }
 
     /**
@@ -97,8 +86,8 @@ class API
      */
     public function downloadSettings() : DownloadSettingsResponse
     {
-        $request = new DownloadSettings($this->latitude, $this->longitude, $this->altitude);
-        return $this->service->execute($request);
+        $request = new DownloadSettings();
+        return $this->service->execute($request, $this->position);
     }
 
     /**
@@ -108,7 +97,7 @@ class API
      */
     public function getMapObjects() : GetMapObjectsResponse
     {
-        $request = new GetMapObjects($this->latitude, $this->longitude, $this->altitude);
-        return $this->service->execute($request);
+        $request = new GetMapObjects($this->position);
+        return $this->service->execute($request, $this->position);
     }
 }

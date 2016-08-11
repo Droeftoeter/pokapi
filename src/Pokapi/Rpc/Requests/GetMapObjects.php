@@ -4,6 +4,7 @@ namespace Pokapi\Rpc\Requests;
 use POGOProtos\Networking\Requests\Messages\GetMapObjectsMessage;
 use POGOProtos\Networking\Requests\RequestType;
 use POGOProtos\Networking\Responses\GetMapObjectsResponse;
+use Pokapi\Rpc\Position;
 use Pokapi\Rpc\Request;
 use S2\S2CellId;
 use S2\S2LatLng;
@@ -16,6 +17,21 @@ use S2\S2LatLng;
  */
 class GetMapObjects extends Request
 {
+
+    /**
+     * @var Position
+     */
+    protected $position;
+
+    /**
+     * GetMapObjects constructor.
+     *
+     * @param Position $position
+     */
+    public function __construct(Position $position)
+    {
+        $this->position = $position;
+    }
 
     /**
      * {@inheritDoc}
@@ -31,9 +47,9 @@ class GetMapObjects extends Request
     public function getMessage()
     {
         $message = new GetMapObjectsMessage();
-        $message->setLatitude($this->getLatitude());
-        $message->setLongitude($this->getLongitude());
-        foreach ($this->getCellIds($this->getLatitude(), $this->getLongitude()) as $cellId) {
+        $message->setLatitude($this->position->getLatitude());
+        $message->setLongitude($this->position->getLongitude());
+        foreach ($this->getCellIds($this->position->getLatitude(), $this->position->getLongitude()) as $cellId) {
             $message->addCellId($cellId);
         }
 

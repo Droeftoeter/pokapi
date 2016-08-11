@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c203005729282f437b0ea61c571704a4",
-    "content-hash": "bb3f7e35ae2a44a44b26d6cad6f249c9",
+    "hash": "24c53876a83588d876072f64040be38d",
+    "content-hash": "b0f81edddc072265948706e4cf51b363",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -204,6 +204,33 @@
             "notification-url": "https://packagist.org/downloads/",
             "description": "Fork - Port of s2-geometry-library-java into PHP",
             "time": "2016-08-02 15:06:32"
+        },
+        {
+            "name": "pogo-php/pogoencrypt-php",
+            "version": "1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/POGO-PHP/POGOEncrypt-PHP.git",
+                "reference": "5cae1dc43e6a58d56ed83b18edffa3f81fcc034f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/POGO-PHP/POGOEncrypt-PHP/zipball/5cae1dc43e6a58d56ed83b18edffa3f81fcc034f",
+                "reference": "5cae1dc43e6a58d56ed83b18edffa3f81fcc034f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "POGOEncrypt\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "Pure PHP implementation of Pokemon Go encrypt.c",
+            "time": "2016-08-11 16:48:51"
         },
         {
             "name": "protobuf-php/google-protobuf-proto",

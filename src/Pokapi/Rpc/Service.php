@@ -2,8 +2,11 @@
 namespace Pokapi\Rpc;
 
 use GuzzleHttp\Client;
+use POGOEncrypt\Encrypt;
 use POGOProtos\Networking\Envelopes\RequestEnvelope;
 use POGOProtos\Networking\Envelopes\ResponseEnvelope;
+use POGOProtos\Networking\Envelopes\Signature;
+use POGOProtos\Networking\Envelopes\Unknown6;
 use Pokapi\Authentication\Provider;
 use Pokapi\Authentication\Token;
 use Pokapi\Exception\NoResponse;
@@ -49,6 +52,11 @@ class Service
     protected $token;
 
     /**
+     * @var int
+     */
+    protected $startTime = 0;
+
+    /**
      * Service constructor.
      *
      * @param Provider $authenticationProvider
@@ -63,18 +71,22 @@ class Service
             ],
             'connect_timeout' => 30,
         ]);
+
+        $this->startTime = round(microtime() * 1000);
     }
 
     /**
      * Execute a request
      *
      * @param Request $request
+     * @param Position $position
+     *
      * @return null|AbstractMessage
      * @throws \Exception
      */
-    public function execute(Request $request)
+    public function execute(Request $request, Position $position)
     {
-        $envelope = $this->createEnvelope($request);
+        $envelope = $this->createEnvelope($request, $position);
 
         $contents = $envelope->toStream()->getContents();
         try {
@@ -104,13 +116,13 @@ class Service
         }
 
         if ($responseEnvelope->getStatusCode() === 53) {
-            return $this->execute($request);
+            return $this->execute($request, $position);
         }
 
         if ($responseEnvelope->getStatusCode() === 102) {
             $this->token = null;
             $this->ticket = null;
-            return $this->execute($request);
+            return $this->execute($request, $position);
         }
 
         if (!empty($responseEnvelope->getReturnsList())) {
@@ -148,18 +160,19 @@ class Service
      * Create a request envelope
      *
      * @param Request $request
+     * @param Position $position
      *
      * @return RequestEnvelope
      */
-    protected function createEnvelope(Request $request) : RequestEnvelope
+    protected function createEnvelope(Request $request, Position $position) : RequestEnvelope
     {
         $envelope = new RequestEnvelope();
         $envelope->setStatusCode(2);
-        $envelope->setLatitude($request->getLatitude());
-        $envelope->setLongitude($request->getLongitude());
-        $envelope->setAltitude($request->getAltitude());
+        $envelope->setLatitude($position->getLatitude());
+        $envelope->setLongitude($position->getLongitude());
+        $envelope->setAltitude($position->getAltitude());
         $envelope->setRequestId($this->getRequestId());
-        $envelope->setUnknown12(59);
+        $envelope->setUnknown12(989);
 
         // Check if we have an authentication ticket
         if ($this->ticket && !$this->ticket->hasExpired()) {
@@ -178,6 +191,54 @@ class Service
         }
 
         $envelope->addRequests($request->toProtobufRequest());
+
+        if ($this->ticket && !$this->ticket->hasExpired()) {
+            $unknown6 = new Unknown6();
+            $unknown6->setRequestType(6);
+
+            $unknown2 = new Unknown6\Unknown2();
+            $unknown2->setEncryptedSignature($this->generateSignature($request, $position));
+            $unknown6->setUnknown2($unknown2);
+            $envelope->setUnknown6($unknown6);
+        }
+
         return $envelope;
+    }
+
+    protected function generateSignature(Request $request, Position $position) : string
+    {
+        $serializedTicket = $this->ticket->toProto()->toStream()->getContents();
+
+        $signature = new Signature();
+        $signature->setLocationHash1(
+            \Pokapi\Utility\Signature::generateLocation1(
+                $serializedTicket,
+                $position->getLatitude(),
+                $position->getLongitude(),
+                $position->getAltitude()
+            )
+        );
+
+        $signature->setLocationHash2(
+            \Pokapi\Utility\Signature::generateLocation2(
+                $position->getLatitude(),
+                $position->getLongitude(),
+                $position->getAltitude()
+            )
+        );
+
+        $signature->addRequestHash(
+            \Pokapi\Utility\Signature::generateRequestHash(
+                $serializedTicket,
+                $request->toProtobufRequest()->toStream()->getContents()
+            )
+        );
+
+        $time = round(microtime(true) * 1000);
+        $signature->setSessionHash(random_bytes(32));
+        $signature->setTimestamp($time);
+        $signature->setTimestampSinceStart($time - $this->startTime);
+
+        return Encrypt::encrypt($signature->toStream()->getContents(), random_bytes(32));
     }
 }

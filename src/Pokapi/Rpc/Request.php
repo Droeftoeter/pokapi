@@ -13,21 +13,6 @@ abstract class Request
 {
 
     /**
-     * @var float
-     */
-    protected $latitude;
-
-    /**
-     * @var float
-     */
-    protected $longitude;
-
-    /**
-     * @var float
-     */
-    protected $altitude;
-
-    /**
      * @var string
      */
     protected $data;
@@ -54,65 +39,6 @@ abstract class Request
      * @return AbstractMessage|null
      */
     abstract public function getResponse(string $data);
-
-    /**
-     * Create instance of request with coordinates
-     *
-     * @param float $latitude
-     * @param float $longitude
-     * @param float $altitude
-     *
-     * @return Request
-     */
-    public static function createWithCoordinates(float $latitude, float $longitude, float $altitude) : Request
-    {
-        $class = get_called_class();
-        return new $class($latitude, $longitude, $altitude);
-    }
-
-    /**
-     * Request constructor.
-     *
-     * @param float $latitude
-     * @param float $longitude
-     * @param float $altitude
-     */
-    public function __construct(float $latitude, float $longitude, float $altitude)
-    {
-        $this->latitude = $latitude;
-        $this->longitude = $longitude;
-        $this->altitude = $altitude;
-    }
-
-    /**
-     * Get the latitude
-     *
-     * @return float
-     */
-    public function getLatitude() : float
-    {
-        return $this->latitude;
-    }
-
-    /**
-     * Get the longitude
-     *
-     * @return float
-     */
-    public function getLongitude() : float
-    {
-        return $this->longitude;
-    }
-
-    /**
-     * Get the altitude
-     *
-     * @return float
-     */
-    public function getAltitude() : float
-    {
-        return $this->altitude;
-    }
 
     /**
      * Converts Rpc Request to protobuf request

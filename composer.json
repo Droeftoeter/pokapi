@@ -4,7 +4,8 @@
         "guzzlehttp/guzzle": "^6.2",
         "nicklasw/s2-geometry-library-php": "dev-master",
         "protobuf-php/protobuf": "dev-master",
-        "protobuf-php/google-protobuf-proto": "dev-master"
+        "protobuf-php/google-protobuf-proto": "dev-master",
+        "pogo-php/pogoencrypt-php": "^1.0"
     },
     "authors": [
         {
