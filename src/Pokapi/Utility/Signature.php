@@ -23,7 +23,7 @@ class Signature
     public static function generateLocation1(string $authTicket, float $latitude, float $longitude, float $altitude = 0.0)
     {
         $seed = hexdec(xxhash32($authTicket, 0x1B845238));
-        return hexdec(xxhash32(self::getLocationBytes($latitude, $longitude, $altitude), (int)$seed));
+        return (int)hexdec(xxhash32(self::getLocationBytes($latitude, $longitude, $altitude), (int)$seed));
     }
 
     /**
@@ -37,7 +37,7 @@ class Signature
      */
     public static function generateLocation2(float $latitude, float $longitude, float $altitude = 0.0) : int
     {
-        return hexdec(xxhash32(self::getLocationBytes($latitude, $longitude, $altitude), 0x1B845238));
+        return (int)hexdec(xxhash32(self::getLocationBytes($latitude, $longitude, $altitude), 0x1B845238));
     }
 
     /**
@@ -51,7 +51,7 @@ class Signature
     public static function generateRequestHash(string $authTicket, string $request) : int
     {
         $seed = hexdec(xxhash64($authTicket, 0x1B845238));
-        return hexdec(xxhash64($request, (int)$seed));
+        return (int)hexdec(xxhash64($request, (int)$seed));
     }
 
     /**
