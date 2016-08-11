@@ -133,7 +133,7 @@ class Service
             return $responseEnvelope->getReturnsList();
         }
 
-        throw new NoResponse();
+        throw new NoResponse("No return messages in response.");
     }
 
     /**
