@@ -9,6 +9,12 @@ Supports request signing
 - PHP 7.0+
 - [php-xxhash](https://github.com/MatthewKingDev/php-xxhash) extension
 
+## Installation
+
+To install with Composer
+
+```composer require sjaakmoes/pokapi```
+
 ## Usage
 ```php
 $authentication = new TrainersClub('username', 'password');
