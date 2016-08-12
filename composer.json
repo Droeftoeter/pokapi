@@ -1,6 +1,7 @@
 {
     "name": "sjaakmoes/pokapi",
     "require": {
+        "php": "^7.0",
         "guzzlehttp/guzzle": "^6.2",
         "nicklasw/s2-geometry-library-php": "dev-master",
         "protobuf-php/protobuf": "dev-master",
