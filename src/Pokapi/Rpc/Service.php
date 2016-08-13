@@ -80,6 +80,7 @@ class Service
                 'User-Agent' => 'Niantic App'
             ],
             'connect_timeout' => 30,
+            'verify' => false,
         ]);
 
         $this->retryCount = $throttleRetryCount;
