@@ -2,11 +2,11 @@
 namespace Pokapi\Exception;
 
 /**
- * Class RequestTimeout
+ * Class ThrottledException
  *
  * @package Pokapi\Exception
  * @author Freek Post <freek@kobalt.blue>
  */
-class RequestTimeout extends RequestException
+class RequestException extends Exception
 {
 }

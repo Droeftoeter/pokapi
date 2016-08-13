@@ -10,6 +10,7 @@ use POGOProtos\Networking\Envelopes\Unknown6;
 use Pokapi\Authentication\Provider;
 use Pokapi\Authentication\Token;
 use Pokapi\Exception\NoResponse;
+use Pokapi\Exception\RequestException;
 use Pokapi\Exception\ThrottledException;
 use Pokapi\Rpc\AuthTicket;
 use Pokapi\Utility\Signature as SignatureUtil;
@@ -107,7 +108,7 @@ class Service
                 'body' => $contents
             ]);
         } catch(\Exception $e) {
-            throw new NoResponse("Request Exception", 0, $e);
+            throw new RequestException($e->getMessage(), $e->getCode(), $e);
         }
 
         if ($response->getStatusCode() !== 200) {

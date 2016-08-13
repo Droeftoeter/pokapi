@@ -7,6 +7,6 @@ namespace Pokapi\Exception;
  * @package Pokapi\Exception
  * @author Freek Post <freek@kobalt.blue>
  */
-class ThrottledException extends Exception
+class ThrottledException extends RequestException
 {
 }

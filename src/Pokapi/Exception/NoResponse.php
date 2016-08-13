@@ -7,6 +7,6 @@ namespace Pokapi\Exception;
  * @package Pokapi\Exception
  * @author Freek Post <freek@kobalt.blue>
  */
-class NoResponse extends Exception
+class NoResponse extends RequestException
 {
 }
