@@ -10,6 +10,7 @@ use POGOProtos\Networking\Envelopes\Unknown6;
 use Pokapi\Authentication\Provider;
 use Pokapi\Authentication\Token;
 use Pokapi\Exception\NoResponse;
+use Pokapi\Exception\ThrottledException;
 use Pokapi\Rpc\AuthTicket;
 use Pokapi\Utility\Signature as SignatureUtil;
 use Protobuf\AbstractMessage;
@@ -59,11 +60,17 @@ class Service
     protected $startTime = 0;
 
     /**
+     * @var int
+     */
+    protected $retryCount;
+
+    /**
      * Service constructor.
      *
      * @param Provider $authenticationProvider
+     * @param int $throttleRetryCount
      */
-    public function __construct(Provider $authenticationProvider)
+    public function __construct(Provider $authenticationProvider, $throttleRetryCount = 2)
     {
         $this->authentication = $authenticationProvider;
         $this->requestId = mt_rand();
@@ -74,6 +81,7 @@ class Service
             'connect_timeout' => 30,
         ]);
 
+        $this->retryCount = $throttleRetryCount;
         $this->startTime = round(microtime() * 1000);
     }
 
@@ -82,13 +90,14 @@ class Service
      *
      * @param array $requests
      * @param Position $position
+     * @param int $attempt
      *
      * @return \Protobuf\Collection
      *
      * @throws NoResponse
      * @throws \Exception
      */
-    public function batchExecute(array $requests, Position $position)
+    public function batchExecute(array $requests, Position $position, $attempt = 0)
     {
         $envelope = $this->createEnvelope($requests, $position);
 
@@ -98,7 +107,7 @@ class Service
                 'body' => $contents
             ]);
         } catch(\Exception $e) {
-            throw new NoResponse();
+            throw new NoResponse("Request Exception");
         }
 
         if ($response->getBody()->isReadable())
@@ -127,6 +136,15 @@ class Service
 
         if ($responseEnvelope->getStatusCode() === 53) {
             return $this->batchExecute($requests, $position);
+        }
+
+        if ($responseEnvelope->getStatusCode() === 52) {
+            $attempt++;
+            if ($attempt >= $this->retryCount) {
+                throw new ThrottledException();
+            }
+            sleep(1);
+            return $this->batchExecute($requests, $position, $attempt);
         }
 
         if ($responseEnvelope->getStatusCode() === 102) {
