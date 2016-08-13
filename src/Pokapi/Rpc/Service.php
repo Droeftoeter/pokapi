@@ -107,10 +107,8 @@ class Service
                 'body' => $contents
             ]);
         } catch(\Exception $e) {
-            throw new NoResponse("Request Exception");
+            throw new NoResponse("Request Exception", 0, $e);
         }
-
-        if ($response->getBody()->isReadable())
 
         if ($response->getStatusCode() !== 200) {
             throw new \Exception("Wrong statuscode: " . $response->getStatusCode());
