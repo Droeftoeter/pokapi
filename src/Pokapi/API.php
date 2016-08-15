@@ -52,7 +52,7 @@ class API
      */
     public function __construct(Provider $authProvider, Position $position, DeviceInfo $deviceInfo)
     {
-        $this->service = new Service($authProvider);
+        $this->service = new Service($authProvider, $deviceInfo);
         $this->position = $position;
         $this->deviceInfo = $deviceInfo;
     }
