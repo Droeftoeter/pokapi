@@ -9,18 +9,23 @@ namespace Pokapi\Utility;
  */
 class Random
 {
+    const MT_RAND_MAX = 2147483647; // Maximum value for 32bit Mersenne Twister, 2^31-1
 
     /**
-     * Generate a random float
+     * Generate a random float between $start and $stop
      *
      * @param number $start
      * @param number $stop
-     * @param int $resolution
      *
      * @return float
      */
-    public static function randomFloat($start, $stop, $resolution = 10000) : float
+    public static function randomFloat($start, $stop) : float
     {
-        return (float)mt_rand($start*$resolution, $stop*$resolution) / $resolution;
+        if ($start > $stop) {
+            $temp = $start;
+            $start = $stop;
+            $stop = $temp;
+        }
+        return $start+mt_rand()/self::MT_RAND_MAX*($stop-$start);
     }
 }
