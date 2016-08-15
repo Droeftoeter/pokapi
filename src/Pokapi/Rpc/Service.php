@@ -306,7 +306,10 @@ class Service
         $deviceInfo->setDeviceBrand("Apple");
         $deviceInfo->setHardwareManufacturer("Apple");
         $signature->setDeviceInfo($deviceInfo);
-        $signature->addLocationFix($this->generateLocationFixes($position));
+
+        foreach ($this->generateLocationFixes($position) as $fix) {
+            $signature->addLocationFix($fix);
+        }
 
         return Encrypt::encrypt($signature->toStream()->getContents(), random_bytes(32));
     }
