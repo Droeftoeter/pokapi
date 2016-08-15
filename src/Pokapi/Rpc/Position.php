@@ -80,7 +80,7 @@ class Position
     public function createRandomized()
     {
         $newCoordinates = Geo::calculateNewCoordinates($this->latitude, $this->longitude, Random::randomFloat(-0.005, 0.005), rand(0,360));
-        $newAltitude    = $this->altitude + Random::randomFloat(-2, 2);
+        $newAltitude    = $this->altitude + round(Random::randomFloat(-2, 2), 2);
         return new self($newCoordinates[0], $newCoordinates[1], $newAltitude);
     }
 }
