@@ -15,11 +15,12 @@ class Random
      *
      * @param number $start
      * @param number $stop
+     * @param int $resolution
      *
      * @return float
      */
-    public static function randomFloat($start, $stop) : float
+    public static function randomFloat($start, $stop, $resolution = 10000) : float
     {
-        return (float)mt_rand($start*10000, $stop*10000) / 10000;
+        return (float)mt_rand($start*$resolution, $stop*$resolution) / $resolution;
     }
 }

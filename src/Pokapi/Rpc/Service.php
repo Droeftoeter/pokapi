@@ -311,6 +311,8 @@ class Service
             $signature->addLocationFix($fix);
         }
 
+        $signature->setSensorInfo($this->generateSensorInfo());
+
         return Encrypt::encrypt($signature->toStream()->getContents(), random_bytes(32));
     }
 
@@ -321,7 +323,7 @@ class Service
      *
      * @return Signature\LocationFix[]
      */
-    protected function generateLocationFixes(Position $position)
+    protected function generateLocationFixes(Position $position) : array
     {
         $amount = rand(1,4);
         $fixes = [];
@@ -340,7 +342,7 @@ class Service
      *
      * @return Signature\LocationFix
      */
-    protected function generateLocationFix(Position $position)
+    protected function generateLocationFix(Position $position) : Signature\LocationFix
     {
         $location = $position->createRandomized();
 
@@ -354,5 +356,53 @@ class Service
         $locationFix->setLatitude($location->getAltitude());
 
         return $locationFix;
+    }
+
+    /**
+     * Generate sensor information
+     *
+     * @return Signature\SensorInfo
+     */
+    protected function generateSensorInfo() : Signature\SensorInfo
+    {
+        $sensorData = Sensors::createRandom(3);
+
+        /* Fetch data */
+        $rawAccell = $sensorData->getAccelerometerData();
+        $normAccell = $sensorData->getNormalizedAccelerometerData();
+        $angle = $sensorData->getAngleData();
+        $gyro = $sensorData->getGyroscopeData();
+        $magneto = $sensorData->getMagnetoData();
+
+        $sensorInfo = new Signature\SensorInfo();
+        $sensorInfo->setTimestampSnapshot(rand(1000,3500));
+        $sensorInfo->setAccelerometerAxes(3);
+
+        /* Raw Accelerometer */
+        $sensorInfo->setAccelRawX($rawAccell[0]);
+        $sensorInfo->setAccelRawY($rawAccell[1]);
+        $sensorInfo->setAccelRawZ($rawAccell[2]);
+
+        /* Normalized accelerometer */
+        $sensorInfo->setAccelNormalizedX($normAccell[0]);
+        $sensorInfo->setAccelNormalizedY($normAccell[1]);
+        $sensorInfo->setAccelNormalizedZ($normAccell[2]);
+
+        /* Normalized angle */
+        $sensorInfo->setAngleNormalizedX($angle[0]);
+        $sensorInfo->setAngleNormalizedY($angle[1]);
+        $sensorInfo->setAngleNormalizedZ($angle[2]);
+
+        /* Gyroscope */
+        $sensorInfo->setGyroscopeRawX($gyro[0]);
+        $sensorInfo->setGyroscopeRawY($gyro[1]);
+        $sensorInfo->setGyroscopeRawZ($gyro[2]);
+
+        /* Magnetometer */
+        $sensorInfo->setMagnetometerX($magneto[0]);
+        $sensorInfo->setMagnetometerY($magneto[1]);
+        $sensorInfo->setMagnetometerZ($magneto[2]);
+
+        return $sensorInfo;
     }
 }
