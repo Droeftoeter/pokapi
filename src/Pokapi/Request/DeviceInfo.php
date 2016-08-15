@@ -1,11 +1,11 @@
 <?php
-namespace Pokapi\Rpc;
+namespace Pokapi\Request;
 use POGOProtos\Networking\Envelopes\Signature\DeviceInfo as SignatureDeviceInfo;
 
 /**
  * Class DeviceInfo
  *
- * @package Pokapi\Rpc
+ * @package Pokapi\Request
  * @author Freek Post <freek@kobalt.blue>
  */
 class DeviceInfo

@@ -1,7 +1,6 @@
 <?php
 namespace Pokapi\Rpc;
 
-use google\protobuf\SourceCodeInfo\Location;
 use GuzzleHttp\Client;
 use POGOEncrypt\Encrypt;
 use POGOProtos\Networking\Envelopes\RequestEnvelope;
@@ -13,7 +12,8 @@ use Pokapi\Authentication\Token;
 use Pokapi\Exception\NoResponse;
 use Pokapi\Exception\RequestException;
 use Pokapi\Exception\ThrottledException;
-use Pokapi\Rpc\AuthTicket;
+use Pokapi\Request\DeviceInfo;
+use Pokapi\Request\Position;
 use Pokapi\Utility\Signature as SignatureUtil;
 use Protobuf\AbstractMessage;
 
@@ -40,6 +40,11 @@ class Service
      * @var Provider
      */
     protected $authentication;
+
+    /**
+     * @var DeviceInfo
+     */
+    protected $deviceInfo;
 
     /**
      * @var int
@@ -70,11 +75,13 @@ class Service
      * Service constructor.
      *
      * @param Provider $authenticationProvider
+     * @param DeviceInfo $deviceInfo
      * @param int $throttleRetryCount
      */
-    public function __construct(Provider $authenticationProvider, $throttleRetryCount = 2)
+    public function __construct(Provider $authenticationProvider, DeviceInfo $deviceInfo, $throttleRetryCount = 2)
     {
         $this->authentication = $authenticationProvider;
+        $this->deviceInfo = $deviceInfo;
         $this->requestId = mt_rand();
         $this->httpClient = new Client([
             'headers' => [
@@ -297,15 +304,7 @@ class Service
         $signature->setTimestampSinceStart($time - $this->startTime);
         $signature->setUnknown25(0x898654dd2753a481);
 
-        $deviceInfo = new Signature\DeviceInfo();
-        $deviceInfo->setFirmwareType("9.3.2");
-        $deviceInfo->setDeviceModelBoot("iPhone5,1");
-        $deviceInfo->setDeviceModel("ïPhone");
-        $deviceInfo->setHardwareModel("N41AP");
-        $deviceInfo->setFirmwareBrand("iPhone OS");
-        $deviceInfo->setDeviceBrand("Apple");
-        $deviceInfo->setHardwareManufacturer("Apple");
-        $signature->setDeviceInfo($deviceInfo);
+        $signature->setDeviceInfo($this->deviceInfo->toProtobuf());
 
         foreach ($this->generateLocationFixes($position) as $fix) {
             $signature->addLocationFix($fix);

@@ -4,7 +4,7 @@ namespace Pokapi\Rpc\Requests;
 use POGOProtos\Networking\Requests\Messages\GetMapObjectsMessage;
 use POGOProtos\Networking\Requests\RequestType;
 use POGOProtos\Networking\Responses\GetMapObjectsResponse;
-use Pokapi\Rpc\Position;
+use Pokapi\Request\Position;
 use Pokapi\Rpc\Request;
 use S2\S2CellId;
 use S2\S2LatLng;

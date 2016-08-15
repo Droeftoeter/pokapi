@@ -20,7 +20,9 @@ To install with Composer
 ## Usage
 ```php
 $authentication = new TrainersClub('username', 'password');
-$api = new API($authentication, $latitude, $longitude, $altitude);
+$position = new Position($latitude, $longitude, $altitude);
+$deviceInfo = DeviceInfo::getDefault($uniqueDeviceId);
+$api = new API($authentication, $position, $deviceInfo);
 
 // Initializes like the real client
 $api->initialize();

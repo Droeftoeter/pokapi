@@ -1,5 +1,5 @@
 <?php
-namespace Pokapi\Rpc;
+namespace Pokapi\Request;
 
 use Pokapi\Utility\Geo;
 use Pokapi\Utility\Random;
@@ -7,7 +7,7 @@ use Pokapi\Utility\Random;
 /**
  * Class Position
  *
- * @package Pokapi\Rpc
+ * @package Pokapi\Request
  * @author Freek Post <freek@kobalt.blue>
  */
 class Position
@@ -35,7 +35,7 @@ class Position
      * @param float $longitude
      * @param float $altitude
      */
-    public function __construct(float $latitude, float $longitude, float $altitude = 8)
+    public function __construct(float $latitude, float $longitude, float $altitude = 8.0)
     {
         $this->latitude = $latitude;
         $this->longitude = $longitude;

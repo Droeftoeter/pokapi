@@ -7,7 +7,8 @@ use POGOProtos\Networking\Responses\GetMapObjectsResponse;
 use POGOProtos\Networking\Responses\GetPlayerResponse;
 use POGOProtos\Networking\Responses\MarkTutorialCompleteResponse;
 use Pokapi\Authentication\Provider;
-use Pokapi\Rpc\Position;
+use Pokapi\Request\DeviceInfo;
+use Pokapi\Request\Position;
 use Pokapi\Rpc\Request;
 use Pokapi\Rpc\Requests\CheckAwardedBadges;
 use Pokapi\Rpc\Requests\DownloadSettings;
@@ -33,6 +34,11 @@ class API
     protected $position;
 
     /**
+     * @var DeviceInfo
+     */
+    protected $deviceInfo;
+
+    /**
      * @var Service
      */
     protected $service;
@@ -41,25 +47,40 @@ class API
      * API constructor.
      *
      * @param Provider $authProvider
-     * @param float $latitude
-     * @param float $longitude
-     * @param float $altitude
+     * @param Position $position
+     * @param DeviceInfo $deviceInfo
      */
-    public function __construct(Provider $authProvider, float $latitude, float $longitude, float $altitude = 0)
+    public function __construct(Provider $authProvider, Position $position, DeviceInfo $deviceInfo)
     {
         $this->service = new Service($authProvider);
-        $this->setLocation($latitude, $longitude, $altitude);
+        $this->position = $position;
+        $this->deviceInfo = $deviceInfo;
     }
 
     /**
-     * Set the location
+     * Sets the device information
      *
-     * @param float $latitude
-     * @param float $longitude
-     * @param float $altitude
+     * @param DeviceInfo $deviceInfo
+     *
+     * @return API
      */
-    public function setLocation(float $latitude, float $longitude, float $altitude = 8) {
-        $this->position = new Position($latitude, $longitude, $altitude);
+    public function setDeviceInfo(DeviceInfo $deviceInfo) : self
+    {
+        $this->deviceInfo = $deviceInfo;
+        return $this;
+    }
+
+    /**
+     * Set the position
+     *
+     * @param Position $position
+     *
+     * @return API
+     */
+    public function setPosition(Position $position) : self
+    {
+        $this->position = $position;
+        return $this;
     }
 
     /**
