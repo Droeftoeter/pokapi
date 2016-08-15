@@ -245,6 +245,7 @@ class Service
             $unknown2->setEncryptedSignature($this->generateSignature($requests, $position));
             $unknown6->setUnknown2($unknown2);
             $envelope->setUnknown6($unknown6);
+            $envelope->setUnknown12(rand(3000, 9000));
         }
 
         return $envelope;
@@ -293,6 +294,7 @@ class Service
         $signature->setSessionHash(random_bytes(32));
         $signature->setTimestamp($time);
         $signature->setTimestampSinceStart($time - $this->startTime);
+        $signature->setUnknown25(0x898654dd2753a481);
 
         return Encrypt::encrypt($signature->toStream()->getContents(), random_bytes(32));
     }
