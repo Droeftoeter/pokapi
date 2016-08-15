@@ -54,9 +54,11 @@ class Geo
      * @param float $longitude
      * @param int $steps
      * @param float $radius
+     * @param bool $walkBack
+     *
      * @return array
      */
-    public static function generateSteps(float $latitude, float $longitude, int $steps, float $radius = 0.07)
+    public static function generateSteps(float $latitude, float $longitude, int $steps, float $radius = 0.07, $walkBack = false)
     {
         $result = [[
             $latitude,
@@ -105,6 +107,19 @@ class Geo
                         self::BEARING_NORTH
                     ];
                 }
+            }
+        }
+
+        /* Walk back to center */
+        if ($walkBack === true) {
+            for ($step = 1; $step < ($steps - 1); $step++) {
+                $location = self::calculateNewCoordinates($location[0], $location[1], $yDistance, self::BEARING_SOUTH);
+                $location = self::calculateNewCoordinates($location[0], $location[1], $xDistance / 2, self::BEARING_EAST);
+                $result[] = [
+                    $location[0],
+                    $location[1],
+                    self::BEARING_NORTH
+                ];
             }
         }
 
