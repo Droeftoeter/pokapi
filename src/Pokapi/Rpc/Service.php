@@ -1,6 +1,7 @@
 <?php
 namespace Pokapi\Rpc;
 
+use google\protobuf\SourceCodeInfo\Location;
 use GuzzleHttp\Client;
 use POGOEncrypt\Encrypt;
 use POGOProtos\Networking\Envelopes\RequestEnvelope;
@@ -296,6 +297,59 @@ class Service
         $signature->setTimestampSinceStart($time - $this->startTime);
         $signature->setUnknown25(0x898654dd2753a481);
 
+        $deviceInfo = new Signature\DeviceInfo();
+        $deviceInfo->setFirmwareType("9.3.2");
+        $deviceInfo->setDeviceModelBoot("iPhone5,1");
+        $deviceInfo->setDeviceModel("ïPhone");
+        $deviceInfo->setHardwareModel("N41AP");
+        $deviceInfo->setFirmwareBrand("iPhone OS");
+        $deviceInfo->setDeviceBrand("Apple");
+        $deviceInfo->setHardwareManufacturer("Apple");
+        $signature->setDeviceInfo($deviceInfo);
+        $signature->addLocationFix($this->generateLocationFixes($position));
+
         return Encrypt::encrypt($signature->toStream()->getContents(), random_bytes(32));
+    }
+
+    /**
+     * Generate a list of location fixes
+     *
+     * @param Position $position
+     *
+     * @return Signature\LocationFix[]
+     */
+    protected function generateLocationFixes(Position $position)
+    {
+        $amount = rand(1,4);
+        $fixes = [];
+
+        for($i = 0; $i < $amount; $i++) {
+            $fixes[] = $this->generateLocationFix($position);
+        }
+
+        return $fixes;
+    }
+
+    /**
+     * Generate a location fix
+     *
+     * @param Position $position
+     *
+     * @return Signature\LocationFix
+     */
+    protected function generateLocationFix(Position $position)
+    {
+        $location = $position->createRandomized();
+
+        $locationFix = new Signature\LocationFix();
+        $locationFix->setProvider("network");
+        $locationFix->setProviderStatus(3);
+        $locationFix->setLocationType(1);
+        $locationFix->setTimestampSnapshot(rand(10000,35000));
+        $locationFix->setAltitude($location->getAltitude());
+        $locationFix->setLongitude($location->getLongitude());
+        $locationFix->setLatitude($location->getAltitude());
+
+        return $locationFix;
     }
 }

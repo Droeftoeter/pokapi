@@ -30,7 +30,7 @@ class GetMapObjects extends Request
      */
     public function __construct(Position $position)
     {
-        $this->position = $position;
+        $this->position = $position->createRandomized();
     }
 
     /**
