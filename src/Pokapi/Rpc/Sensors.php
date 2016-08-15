@@ -134,15 +134,15 @@ class Sensors
     {
         for($i = 0; $i < $passes; $i++) {
             $sensor = new self(
-                Random::randomFloat(-0.3, 0.3, 10000000000000000),
-                Random::randomFloat(-0.2, 2.5, 10000000000000000),
-                Random::randomFloat(-0.2, 5, 10000000000000000),
-                Random::randomFloat(0.08, 0.20, 10000000000000000),
-                Random::randomFloat(0.45, 0.62, 10000000000000000),
-                Random::randomFloat(9, 12, 10000000000000000),
-                Random::randomFloat(40, 50, 10000000000000000),
-                Random::randomFloat(-3, 3, 10000000000000000),
-                Random::randomFloat(-125, -85, 10000000000000000),
+                Random::randomFloat(-0.3, 0.3),
+                Random::randomFloat(-0.2, 2.5),
+                Random::randomFloat(-0.2, 5),
+                Random::randomFloat(0.08, 0.20),
+                Random::randomFloat(0.45, 0.62),
+                Random::randomFloat(9, 12),
+                Random::randomFloat(40, 50),
+                Random::randomFloat(-3, 3),
+                Random::randomFloat(-125, -85),
                 0,
                 0,
                 0
