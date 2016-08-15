@@ -1,13 +1,15 @@
 # PHP Pokemon Go API
+
 Pokemon API PHP.
 Not finished at all so far.
 
-Supports request signing
+Supports request signing.
 
 ## Requirements
 
 - PHP 7.0+
 - [php-xxhash](https://github.com/MatthewKingDev/php-xxhash) extension
+- 64-bit PHP
 
 ## Installation
 
