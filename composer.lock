@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "24c53876a83588d876072f64040be38d",
-    "content-hash": "b0f81edddc072265948706e4cf51b363",
+    "hash": "4052f15076958aef3fbdea62c6fc2807",
+    "content-hash": "e5c70139e535cff8a3de68baee9822ee",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -177,6 +177,37 @@
                 "uri"
             ],
             "time": "2016-06-24 23:00:38"
+        },
+        {
+            "name": "jaspervdm/pogoprotos-php",
+            "version": "v0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jaspervdm/pogoprotos-php.git",
+                "reference": "851a0530f197a62d3c9745a56f3c161cf2105bd3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jaspervdm/pogoprotos-php/zipball/851a0530f197a62d3c9745a56f3c161cf2105bd3",
+                "reference": "851a0530f197a62d3c9745a56f3c161cf2105bd3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5",
+                "protobuf-php/protobuf": "~0.1"
+            },
+            "require-dev": {
+                "protobuf-php/protobuf-plugin": "~0.1"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "Compiled PHP protobufs for pokemon go",
+            "time": "2016-08-14 18:42:41"
         },
         {
             "name": "nicklasw/s2-geometry-library-php",
@@ -408,6 +439,8 @@
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": "^7.0"
+    },
     "platform-dev": []
 }

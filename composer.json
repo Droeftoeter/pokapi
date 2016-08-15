@@ -4,9 +4,9 @@
         "php": "^7.0",
         "guzzlehttp/guzzle": "^6.2",
         "nicklasw/s2-geometry-library-php": "dev-master",
-        "protobuf-php/protobuf": "dev-master",
         "protobuf-php/google-protobuf-proto": "dev-master",
-        "pogo-php/pogoencrypt-php": "^1.0"
+        "pogo-php/pogoencrypt-php": "^1.0",
+        "jaspervdm/pogoprotos-php": "^0.1.0"
     },
     "authors": [
         {
@@ -15,9 +15,6 @@
         }
     ],
     "autoload": {
-        "psr-0": { "Pokapi\\": "src/" },
-        "psr-4": {
-            "POGOProtos\\": "POGOProtos/"
-        }
+        "psr-0": { "Pokapi\\": "src/" }
     }
 }
