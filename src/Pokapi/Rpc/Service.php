@@ -69,6 +69,11 @@ class Service
     /**
      * @var int
      */
+    protected $lastRequestMs;
+
+    /**
+     * @var int
+     */
     protected $retryCount;
 
     /**
@@ -96,6 +101,16 @@ class Service
     }
 
     /**
+     * Get the last request timestamp in milliseconds
+     *
+     * @return int
+     */
+    public function getLastRequestTimestamp()
+    {
+        return $this->lastRequestMs;
+    }
+
+    /**
      * Execute multiple requests
      *
      * @param array $requests
@@ -109,6 +124,8 @@ class Service
      */
     public function batchExecute(array $requests, Position $position, $attempt = 0)
     {
+        $this->lastRequestMs = round(microtime(true) * 1000);
+
         $envelope = $this->createEnvelope($requests, $position);
 
         $contents = $envelope->toStream()->getContents();

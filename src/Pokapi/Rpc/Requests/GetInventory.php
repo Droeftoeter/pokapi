@@ -16,6 +16,11 @@ class GetInventory extends Request
 {
 
     /**
+     * @var int|null
+     */
+    public static $lastRequest;
+
+    /**
      * {@inheritDoc}
      */
     public function getType() : RequestType
@@ -29,7 +34,9 @@ class GetInventory extends Request
     public function getMessage()
     {
         $message = new GetInventoryMessage();
-        $message->setLastTimestampMs(0);
+        $message->setLastTimestampMs(self::$lastRequest);
+
+        self::$lastRequest = round(microtime(true) * 1000);
 
         return $message;
     }
