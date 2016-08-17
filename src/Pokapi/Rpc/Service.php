@@ -107,7 +107,7 @@ class Service
         ]);
 
         $this->retryCount = $throttleRetryCount;
-        $this->startTime = round(microtime() * 1000);
+        $this->startTime = round(microtime(true) * 1000);
     }
 
     /**
