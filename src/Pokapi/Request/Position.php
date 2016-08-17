@@ -75,11 +75,14 @@ class Position
     /**
      * Creates a randomized version of this approximate position
      *
+     * @param float $minDistance
+     * @param float $maxDistance
+     *
      * @return Position
      */
-    public function createRandomized()
+    public function createRandomized($minDistance = -0.005, $maxDistance = 0.005)
     {
-        $newCoordinates = Geo::calculateNewCoordinates($this->latitude, $this->longitude, Random::randomFloat(-0.005, 0.005), rand(0,360));
+        $newCoordinates = Geo::calculateNewCoordinates($this->latitude, $this->longitude, Random::randomFloat($minDistance, $maxDistance), rand(0,360));
         $newAltitude    = $this->altitude + round(Random::randomFloat(-2, 2), 2);
         return new self($newCoordinates[0], $newCoordinates[1], $newAltitude);
     }

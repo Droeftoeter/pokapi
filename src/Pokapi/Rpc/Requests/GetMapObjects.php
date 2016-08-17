@@ -91,9 +91,6 @@ class GetMapObjects extends Request
                 $cells[] = $s2CellID->parent(15)->id();
             }
         }
-
-        echo implode(",", $cells);
-
         return $cells;
     }
 }
