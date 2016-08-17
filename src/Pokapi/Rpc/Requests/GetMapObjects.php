@@ -30,7 +30,7 @@ class GetMapObjects extends Request
      */
     public function __construct(Position $position)
     {
-        $this->position = $position->createRandomized();
+        $this->position = $position;
     }
 
     /**
@@ -72,7 +72,7 @@ class GetMapObjects extends Request
      * @param int    $width
      * @return array
      */
-    public function getCellIds($latitude, $longitude, $width = 9)
+    public function getCellIds($latitude, $longitude, $width = 6)
     {
         // Create s2 instance from latitude and longitude
         $s2latLng = S2LatLng::fromDegrees($latitude, $longitude);
@@ -91,6 +91,9 @@ class GetMapObjects extends Request
                 $cells[] = $s2CellID->parent(15)->id();
             }
         }
+
+        echo implode(",", $cells);
+
         return $cells;
     }
 }

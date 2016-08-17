@@ -72,6 +72,11 @@ class Service
     protected $lastRequestMs;
 
     /**
+     * @var string
+     */
+    protected $sessionHash;
+
+    /**
      * @var int
      */
     protected $retryCount;
@@ -316,7 +321,7 @@ class Service
         }
 
         $time = round(microtime(true) * 1000);
-        $signature->setSessionHash(random_bytes(32));
+        $signature->setSessionHash($this->getSessionHash());
         $signature->setTimestamp($time);
         $signature->setTimestampSinceStart($time - $this->startTime);
         $signature->setUnknown25(0x898654dd2753a481);
@@ -333,6 +338,20 @@ class Service
     }
 
     /**
+     * Get the session hash
+     *
+     * @return string
+     */
+    protected function getSessionHash()
+    {
+        if ($this->sessionHash === null) {
+            $this->sessionHash = random_bytes(32);
+        }
+
+        return $this->sessionHash;
+    }
+
+    /**
      * Generate a list of location fixes
      *
      * @param Position $position
@@ -341,7 +360,7 @@ class Service
      */
     protected function generateLocationFixes(Position $position) : array
     {
-        $amount = rand(1,4);
+        $amount = rand(3,5);
         $fixes = [];
 
         for($i = 0; $i < $amount; $i++) {
