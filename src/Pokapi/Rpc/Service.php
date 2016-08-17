@@ -82,6 +82,11 @@ class Service
     protected $retryCount;
 
     /**
+     * @var ResponseEnvelope
+     */
+    protected $lastResponse;
+
+    /**
      * Service constructor.
      *
      * @param Provider $authenticationProvider
@@ -155,6 +160,7 @@ class Service
         }
 
         $responseEnvelope = new ResponseEnvelope($response->getBody()->getContents());
+        $this->lastResponse = $responseEnvelope;
 
         if ($responseEnvelope->getAuthTicket()) {
             $this->ticket = AuthTicket::fromProto($responseEnvelope->getAuthTicket());
@@ -188,6 +194,16 @@ class Service
         }
 
         throw new NoResponse("No return messages in response.");
+    }
+
+    /**
+     * Get the last response
+     *
+     * @return ResponseEnvelope
+     */
+    public function getLastResponse()
+    {
+        return $this->lastResponse;
     }
 
     /**

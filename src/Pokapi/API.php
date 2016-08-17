@@ -167,4 +167,14 @@ class API
         $request = new GetMapObjects($this->position);
         return $this->service->execute($request, $this->position);
     }
+
+    /**
+     * Get the Rpc service
+     *
+     * @return Service
+     */
+    public function getService() : Service
+    {
+        return $this->service;
+    }
 }
