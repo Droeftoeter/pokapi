@@ -51,6 +51,7 @@ class Signature
     public static function generateRequestHash(string $authTicket, string $request) : int
     {
         $seed = (unpack("J", pack("H*", xxhash64($authTicket, 0x1B845238))))[1];
+        return (unpack("J", pack("H*", xxhash64($request, $seed))))[1];
     }
 
     /**
