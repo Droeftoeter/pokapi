@@ -29,7 +29,6 @@ class GetPlayer extends Request
     public function getMessage()
     {
         $player = new GetPlayerMessage();
-        $player->setAppVersion('0.33.0');
         return $player;
     }
 
