@@ -184,12 +184,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jaspervdm/pogoprotos-php.git",
-                "reference": "79caa230cda348115869b6f123c4c66a492c9dec"
+                "reference": "d58e28e3fd3f2c3c4dd061fbe5e67ec6decbf17a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jaspervdm/pogoprotos-php/zipball/79caa230cda348115869b6f123c4c66a492c9dec",
-                "reference": "79caa230cda348115869b6f123c4c66a492c9dec",
+                "url": "https://api.github.com/repos/jaspervdm/pogoprotos-php/zipball/d58e28e3fd3f2c3c4dd061fbe5e67ec6decbf17a",
+                "reference": "d58e28e3fd3f2c3c4dd061fbe5e67ec6decbf17a",
                 "shasum": ""
             },
             "require": {
@@ -225,11 +225,12 @@
             "homepage": "https://github.com/jaspervdm/pogoprotos-php",
             "keywords": [
                 "PoGo",
+                "pokemon",
                 "pokemon-go",
                 "protobuf",
                 "protos"
             ],
-            "time": "2016-08-18 00:42:06"
+            "time": "2016-08-18 00:43:21"
         },
         {
             "name": "nicklasw/s2-geometry-library-php",
