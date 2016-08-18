@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4052f15076958aef3fbdea62c6fc2807",
-    "content-hash": "e5c70139e535cff8a3de68baee9822ee",
+    "hash": "6f12103fd91314149e6aea9cbb48c5a0",
+    "content-hash": "7eaf8a1d4a3ad6d86ad2530cdf684785",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -180,16 +180,16 @@
         },
         {
             "name": "jaspervdm/pogoprotos-php",
-            "version": "v0.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jaspervdm/pogoprotos-php.git",
-                "reference": "851a0530f197a62d3c9745a56f3c161cf2105bd3"
+                "reference": "79caa230cda348115869b6f123c4c66a492c9dec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jaspervdm/pogoprotos-php/zipball/851a0530f197a62d3c9745a56f3c161cf2105bd3",
-                "reference": "851a0530f197a62d3c9745a56f3c161cf2105bd3",
+                "url": "https://api.github.com/repos/jaspervdm/pogoprotos-php/zipball/79caa230cda348115869b6f123c4c66a492c9dec",
+                "reference": "79caa230cda348115869b6f123c4c66a492c9dec",
                 "shasum": ""
             },
             "require": {
@@ -206,8 +206,30 @@
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "jaspervdm",
+                    "homepage": "https://github.com/jaspervdm",
+                    "role": "Owner"
+                },
+                {
+                    "name": "DrDelay",
+                    "homepage": "https://github.com/DrDelay",
+                    "role": "Collaborator"
+                }
+            ],
             "description": "Compiled PHP protobufs for pokemon go",
-            "time": "2016-08-14 18:42:41"
+            "homepage": "https://github.com/jaspervdm/pogoprotos-php",
+            "keywords": [
+                "PoGo",
+                "pokemon-go",
+                "protobuf",
+                "protos"
+            ],
+            "time": "2016-08-18 00:42:06"
         },
         {
             "name": "nicklasw/s2-geometry-library-php",
@@ -316,7 +338,7 @@
         },
         {
             "name": "protobuf-php/protobuf",
-            "version": "dev-master",
+            "version": "v0.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/protobuf-php/protobuf.git",
@@ -434,8 +456,8 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "nicklasw/s2-geometry-library-php": 20,
-        "protobuf-php/protobuf": 20,
-        "protobuf-php/google-protobuf-proto": 20
+        "protobuf-php/google-protobuf-proto": 20,
+        "jaspervdm/pogoprotos-php": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
