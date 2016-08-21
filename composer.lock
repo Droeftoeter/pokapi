@@ -237,12 +237,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/NicklasWallgren/s2-geometry-library-php.git",
-                "reference": "7b70a341ba75290d526335f9874307df2306a540"
+                "reference": "439506917844f812f0740fc2bf2115a9fb4450f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NicklasWallgren/s2-geometry-library-php/zipball/7b70a341ba75290d526335f9874307df2306a540",
-                "reference": "7b70a341ba75290d526335f9874307df2306a540",
+                "url": "https://api.github.com/repos/NicklasWallgren/s2-geometry-library-php/zipball/439506917844f812f0740fc2bf2115a9fb4450f4",
+                "reference": "439506917844f812f0740fc2bf2115a9fb4450f4",
                 "shasum": ""
             },
             "require-dev": {
@@ -256,7 +256,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "description": "Fork - Port of s2-geometry-library-java into PHP",
-            "time": "2016-08-02 15:06:32"
+            "time": "2016-08-20 09:18:01"
         },
         {
             "name": "pogo-php/pogoencrypt-php",

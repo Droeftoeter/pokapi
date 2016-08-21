@@ -72,7 +72,7 @@ class GetMapObjects extends Request
      * @param int    $width
      * @return array
      */
-    public function getCellIds($latitude, $longitude, $width = 6)
+    public function getCellIds($latitude, $longitude, $width = 9)
     {
         // Create s2 instance from latitude and longitude
         $s2latLng = S2LatLng::fromDegrees($latitude, $longitude);
