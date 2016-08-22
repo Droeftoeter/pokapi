@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6f12103fd91314149e6aea9cbb48c5a0",
-    "content-hash": "7eaf8a1d4a3ad6d86ad2530cdf684785",
+    "hash": "6e4c2a29879567eac79d36bdb4441abd",
+    "content-hash": "71ff0f8b9268cfc88476a3dce7927810",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -180,16 +180,16 @@
         },
         {
             "name": "jaspervdm/pogoprotos-php",
-            "version": "dev-master",
+            "version": "dev-default-packed-fields",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jaspervdm/pogoprotos-php.git",
-                "reference": "9727f8fe507bab8b23b070d4bb820b5fb8438058"
+                "reference": "e6e0bf540a16c8ddef7224300ed84d3ae51f59b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jaspervdm/pogoprotos-php/zipball/9727f8fe507bab8b23b070d4bb820b5fb8438058",
-                "reference": "9727f8fe507bab8b23b070d4bb820b5fb8438058",
+                "url": "https://api.github.com/repos/jaspervdm/pogoprotos-php/zipball/e6e0bf540a16c8ddef7224300ed84d3ae51f59b4",
+                "reference": "e6e0bf540a16c8ddef7224300ed84d3ae51f59b4",
                 "shasum": ""
             },
             "require": {
@@ -197,7 +197,7 @@
                 "protobuf-php/protobuf": "~0.1"
             },
             "require-dev": {
-                "protobuf-php/protobuf-plugin": "~0.1"
+                "protobuf-php/protobuf-plugin": "dev-master#fea131adaf9a9b6a409917050202ee0bb0c8b101"
             },
             "type": "library",
             "autoload": {
@@ -225,11 +225,12 @@
             "homepage": "https://github.com/jaspervdm/pogoprotos-php",
             "keywords": [
                 "PoGo",
+                "pokemon",
                 "pokemon-go",
                 "protobuf",
                 "protos"
             ],
-            "time": "2016-08-18 00:51:14"
+            "time": "2016-08-21 22:16:28"
         },
         {
             "name": "nicklasw/s2-geometry-library-php",
