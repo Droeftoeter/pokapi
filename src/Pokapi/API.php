@@ -2,6 +2,7 @@
 namespace Pokapi;
 
 use POGOProtos\Networking\Responses\DownloadSettingsResponse;
+use POGOProtos\Networking\Responses\GetGymDetailsResponse;
 use POGOProtos\Networking\Responses\GetInventoryResponse;
 use POGOProtos\Networking\Responses\GetMapObjectsResponse;
 use POGOProtos\Networking\Responses\GetPlayerResponse;
@@ -12,6 +13,7 @@ use Pokapi\Request\Position;
 use Pokapi\Rpc\Request;
 use Pokapi\Rpc\Requests\CheckAwardedBadges;
 use Pokapi\Rpc\Requests\DownloadSettings;
+use Pokapi\Rpc\Requests\GetGymDetails;
 use Pokapi\Rpc\Requests\GetHatchedEggs;
 use Pokapi\Rpc\Requests\GetInventory;
 use Pokapi\Rpc\Requests\GetMapObjects;
@@ -165,6 +167,23 @@ class API
     public function getMapObjects() : GetMapObjectsResponse
     {
         $request = new GetMapObjects($this->position);
+        return $this->service->execute($request, $this->position);
+    }
+
+    /**
+     * Get details for the given gym id/latitude/longitude and player lat/lng.
+     * The maximum range for this query is ~900m from current player location.
+     *
+     * @param string $id
+     * @param $latitude
+     * @param $longitude
+     * @return GetGymDetailsResponse
+     * @internal param Position $position
+     */
+
+    public function getGymDetails(string $id, $latitude, $longitude) : GetGymDetailsResponse
+    {
+        $request = new GetGymDetails($this->position, $id, $latitude, $longitude);
         return $this->service->execute($request, $this->position);
     }
 
