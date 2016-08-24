@@ -175,13 +175,11 @@ class API
      * The maximum range for this query is ~900m from current player location.
      *
      * @param string $id
-     * @param $latitude
-     * @param $longitude
+     * @param float $latitude
+     * @param float $longitude
      * @return GetGymDetailsResponse
-     * @internal param Position $position
      */
-
-    public function getGymDetails(string $id, $latitude, $longitude) : GetGymDetailsResponse
+    public function getGymDetails(string $id, float $latitude, float $longitude) : GetGymDetailsResponse
     {
         $request = new GetGymDetails($this->position, $id, $latitude, $longitude);
         return $this->service->execute($request, $this->position);

@@ -1,5 +1,4 @@
 <?php
-
 namespace Pokapi\Rpc\Requests;
 
 use POGOProtos\Networking\Requests\Messages\GetGymDetailsMessage;
@@ -39,15 +38,15 @@ class GetGymDetails extends Request
      * GetGymDetails constructor.
      *
      * @param Position $playerPosition
-     * @param string $id
-     * @param float $latitude
-     * @param float $longitude
+     * @param string $gymId
+     * @param float $gymLatitude
+     * @param float $gymLongitude
      */
-    public function __construct(Position $playerPosition, string $id, float $latitude, float $longitude) {
+    public function __construct(Position $playerPosition, string $gymId, float $gymLatitude, float $gymLongitude) {
         $this->playerPosition = $playerPosition;
-        $this->gymId = $id;
-        $this->gymLatitude = $latitude;
-        $this->gymLongitude = $longitude;
+        $this->gymId = $gymId;
+        $this->gymLatitude = $gymLatitude;
+        $this->gymLongitude = $gymLongitude;
     }
 
     /**
