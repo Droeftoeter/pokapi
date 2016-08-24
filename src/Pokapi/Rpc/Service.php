@@ -261,7 +261,7 @@ class Service
         $envelope->setLongitude($position->getLongitude());
         $envelope->setAltitude($position->getAltitude());
         $envelope->setRequestId($this->getRequestId());
-        $envelope->setUnknown12(989);
+        $envelope->setUnknown12(mt_rand(700, 1200));
 
         // Check if we have an authentication ticket
         if ($this->ticket && !$this->ticket->hasExpired()) {
