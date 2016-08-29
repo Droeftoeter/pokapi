@@ -6,7 +6,7 @@
         "nicklasw/s2-geometry-library-php": "dev-master",
         "protobuf-php/google-protobuf-proto": "dev-master",
         "pogo-php/pogoencrypt-php": "^1.0",
-        "jaspervdm/pogoprotos-php": "dev-default-packed-fields"
+        "jaspervdm/pogoprotos-php": "dev-master"
     },
     "authors": [
         {

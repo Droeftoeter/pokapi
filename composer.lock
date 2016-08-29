@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6e4c2a29879567eac79d36bdb4441abd",
-    "content-hash": "71ff0f8b9268cfc88476a3dce7927810",
+    "hash": "6f12103fd91314149e6aea9cbb48c5a0",
+    "content-hash": "7eaf8a1d4a3ad6d86ad2530cdf684785",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -180,16 +180,16 @@
         },
         {
             "name": "jaspervdm/pogoprotos-php",
-            "version": "dev-default-packed-fields",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jaspervdm/pogoprotos-php.git",
-                "reference": "e6e0bf540a16c8ddef7224300ed84d3ae51f59b4"
+                "reference": "00e98c5bfae63a6b38757dd1db9987538479c9ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jaspervdm/pogoprotos-php/zipball/e6e0bf540a16c8ddef7224300ed84d3ae51f59b4",
-                "reference": "e6e0bf540a16c8ddef7224300ed84d3ae51f59b4",
+                "url": "https://api.github.com/repos/jaspervdm/pogoprotos-php/zipball/00e98c5bfae63a6b38757dd1db9987538479c9ae",
+                "reference": "00e98c5bfae63a6b38757dd1db9987538479c9ae",
                 "shasum": ""
             },
             "require": {
@@ -225,12 +225,11 @@
             "homepage": "https://github.com/jaspervdm/pogoprotos-php",
             "keywords": [
                 "PoGo",
-                "pokemon",
                 "pokemon-go",
                 "protobuf",
                 "protos"
             ],
-            "time": "2016-08-21 22:16:28"
+            "time": "2016-08-28 20:45:37"
         },
         {
             "name": "nicklasw/s2-geometry-library-php",
@@ -238,12 +237,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/NicklasWallgren/s2-geometry-library-php.git",
-                "reference": "439506917844f812f0740fc2bf2115a9fb4450f4"
+                "reference": "803992b814d1ce8aaaccb905937e5a26d53d27ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NicklasWallgren/s2-geometry-library-php/zipball/439506917844f812f0740fc2bf2115a9fb4450f4",
-                "reference": "439506917844f812f0740fc2bf2115a9fb4450f4",
+                "url": "https://api.github.com/repos/NicklasWallgren/s2-geometry-library-php/zipball/803992b814d1ce8aaaccb905937e5a26d53d27ce",
+                "reference": "803992b814d1ce8aaaccb905937e5a26d53d27ce",
                 "shasum": ""
             },
             "require-dev": {
@@ -257,7 +256,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "description": "Fork - Port of s2-geometry-library-java into PHP",
-            "time": "2016-08-20 09:18:01"
+            "time": "2016-08-27 12:47:20"
         },
         {
             "name": "pogo-php/pogoencrypt-php",

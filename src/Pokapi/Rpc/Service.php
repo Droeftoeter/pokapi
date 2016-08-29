@@ -7,6 +7,8 @@ use POGOProtos\Networking\Envelopes\RequestEnvelope;
 use POGOProtos\Networking\Envelopes\ResponseEnvelope;
 use POGOProtos\Networking\Envelopes\Signature;
 use POGOProtos\Networking\Envelopes\Unknown6;
+use POGOProtos\Networking\Platform\PlatformRequestType;
+use POGOProtos\Networking\Platform\Requests\SendEncryptedSignatureRequest;
 use Pokapi\Authentication\Provider;
 use Pokapi\Authentication\Token;
 use Pokapi\Exception\NoResponse;
@@ -170,11 +172,11 @@ class Service
             $this->setEndpoint($responseEnvelope->getApiUrl());
         }
 
-        if ($responseEnvelope->getStatusCode() === 53) {
+        if ($responseEnvelope->getStatusCode() === ResponseEnvelope\StatusCode::REDIRECT()) {
             return $this->batchExecute($requests, $position);
         }
 
-        if ($responseEnvelope->getStatusCode() === 52) {
+        if ($responseEnvelope->getStatusCode() === ResponseEnvelope\StatusCode::INVALID_PLATFORM_REQUEST()) {
             $attempt++;
             if ($attempt >= $this->retryCount) {
                 throw new ThrottledException();
@@ -183,7 +185,7 @@ class Service
             return $this->batchExecute($requests, $position, $attempt);
         }
 
-        if ($responseEnvelope->getStatusCode() === 102) {
+        if ($responseEnvelope->getStatusCode() === ResponseEnvelope\StatusCode::INVALID_AUTH_TOKEN()) {
             $this->token = null;
             $this->ticket = null;
             return $this->batchExecute($requests, $position);
@@ -259,9 +261,9 @@ class Service
         $envelope->setStatusCode(2);
         $envelope->setLatitude($position->getLatitude());
         $envelope->setLongitude($position->getLongitude());
-        $envelope->setAltitude($position->getAltitude());
+        $envelope->setAccuracy($position->getAccuracy());
         $envelope->setRequestId($this->getRequestId());
-        $envelope->setUnknown12(mt_rand(700, 1200));
+        $envelope->setMsSinceLastLocationfix(mt_rand(700, 1200));
 
         // Check if we have an authentication ticket
         if ($this->ticket && !$this->ticket->hasExpired()) {
@@ -284,14 +286,17 @@ class Service
         }
 
         if ($this->ticket && !$this->ticket->hasExpired()) {
-            $unknown6 = new Unknown6();
-            $unknown6->setRequestType(6);
+            // Add an encrypted signature platform request to the envelope.
+            $platformRequest = new RequestEnvelope\PlatformRequest();
+            $platformRequest->setType(PlatformRequestType::SEND_ENCRYPTED_SIGNATURE());
 
-            $unknown2 = new Unknown6\Unknown2();
-            $unknown2->setEncryptedSignature($this->generateSignature($requests, $position));
-            $unknown6->setUnknown2($unknown2);
-            $envelope->setUnknown6($unknown6);
-            $envelope->setUnknown12(rand(3000, 9000));
+            $encryptedSigRequest = new SendEncryptedSignatureRequest();
+            $encryptedSigRequest->setEncryptedSignature($this->generateSignature($requests, $position));
+
+            $platformRequest->setRequestMessage($encryptedSigRequest->toStream());
+
+            $envelope->addPlatformRequests($platformRequest);
+            $envelope->setMsSinceLastLocationfix(rand(3000, 9000));
         }
 
         return $envelope;
@@ -315,7 +320,7 @@ class Service
                 $serializedTicket,
                 $position->getLatitude(),
                 $position->getLongitude(),
-                $position->getAltitude()
+                $position->getAccuracy()
             )
         );
 
@@ -323,7 +328,7 @@ class Service
             SignatureUtil::generateLocation2(
                 $position->getLatitude(),
                 $position->getLongitude(),
-                $position->getAltitude()
+                $position->getAccuracy()
             )
         );
 
@@ -429,30 +434,34 @@ class Service
         $sensorInfo->setTimestampSnapshot(rand(1000,3500));
         $sensorInfo->setAccelerometerAxes(3);
 
-        /* Raw Accelerometer */
-        $sensorInfo->setAccelRawX($rawAccell[0]);
-        $sensorInfo->setAccelRawY($rawAccell[1]);
-        $sensorInfo->setAccelRawZ($rawAccell[2]);
+        /* MOTION SENSORS */
+        /* Rotation Vector */
+        $sensorInfo->setRotationVectorX($angle[0]);
+        $sensorInfo->setRotationVectorY($angle[1]);
+        $sensorInfo->setRotationVectorZ($angle[2]);
 
-        /* Normalized accelerometer */
-        $sensorInfo->setAccelNormalizedX($normAccell[0]);
-        $sensorInfo->setAccelNormalizedY($normAccell[1]);
-        $sensorInfo->setAccelNormalizedZ($normAccell[2]);
+        /* Linear Acceleration (this excludes gravity) */
+        $sensorInfo->setLinearAccelerationX($normAccell[0]);
+        $sensorInfo->setLinearAccelerationY($normAccell[1]);
+        $sensorInfo->setLinearAccelerationZ($normAccell[2]);
 
-        /* Normalized angle */
-        $sensorInfo->setAngleNormalizedX($angle[0]);
-        $sensorInfo->setAngleNormalizedY($angle[1]);
-        $sensorInfo->setAngleNormalizedZ($angle[2]);
+        /* Gravity */
+        /* Note from Google Sensor documentation: When a device is at rest, the output of the gravity sensor should
+           be identical to that of the accelerometer. */
+        $sensorInfo->setGravityX($rawAccell[0]);
+        $sensorInfo->setGravityY($rawAccell[1]);
+        $sensorInfo->setGravityZ($rawAccell[2]);
 
         /* Gyroscope */
         $sensorInfo->setGyroscopeRawX($gyro[0]);
         $sensorInfo->setGyroscopeRawY($gyro[1]);
         $sensorInfo->setGyroscopeRawZ($gyro[2]);
 
-        /* Magnetometer */
-        $sensorInfo->setMagnetometerX($magneto[0]);
-        $sensorInfo->setMagnetometerY($magneto[1]);
-        $sensorInfo->setMagnetometerZ($magneto[2]);
+        /* POSITION SENSORS */
+        /* Magnetic field */
+        $sensorInfo->setMagneticFieldX($magneto[0]);
+        $sensorInfo->setMagneticFieldY($magneto[1]);
+        $sensorInfo->setMagneticFieldZ($magneto[2]);
 
         return $sensorInfo;
     }
