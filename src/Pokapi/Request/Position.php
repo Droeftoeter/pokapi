@@ -29,17 +29,24 @@ class Position
     protected $altitude = 8;
 
     /**
+     * @var float|int
+     */
+    protected $accuracy = 5;
+
+    /**
      * Position constructor.
      *
      * @param float $latitude
      * @param float $longitude
      * @param float $altitude
+     * @param float $accuracy
      */
-    public function __construct(float $latitude, float $longitude, float $altitude = 8.0)
+    public function __construct(float $latitude, float $longitude, float $altitude = 8.0, $accuracy = 5.0)
     {
         $this->latitude = $latitude;
         $this->longitude = $longitude;
         $this->altitude = $altitude;
+        $this->accuracy = $accuracy;
     }
 
     /**
@@ -73,6 +80,16 @@ class Position
     }
 
     /**
+     * Return horizontal accuracy.
+     *
+     * @return float|int
+     */
+    public function getAccuracy()
+    {
+        return $this->accuracy;
+    }
+
+    /**
      * Creates a randomized version of this approximate position
      *
      * @param float $minDistance
@@ -84,6 +101,7 @@ class Position
     {
         $newCoordinates = Geo::calculateNewCoordinates($this->latitude, $this->longitude, Random::randomFloat($minDistance, $maxDistance), rand(0,360));
         $newAltitude    = $this->altitude + round(Random::randomFloat(-2, 2), 2);
-        return new self($newCoordinates[0], $newCoordinates[1], $newAltitude);
+        $newAccuracy    = mt_rand(3, 10);
+        return new self($newCoordinates[0], $newCoordinates[1], $newAltitude, $newAccuracy);
     }
 }

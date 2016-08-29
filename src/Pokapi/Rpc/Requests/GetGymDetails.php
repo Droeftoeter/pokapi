@@ -68,7 +68,7 @@ class GetGymDetails extends Request
         $message->setGymId($this->gymId);
         $message->setGymLatitude($this->gymLatitude);
         $message->setGymLongitude($this->gymLongitude);
-        $message->setClientVersion('0.33.0');
+        $message->setClientVersion('0.35.0');
 
         return $message;
     }
