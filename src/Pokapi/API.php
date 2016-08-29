@@ -2,6 +2,7 @@
 namespace Pokapi;
 
 use POGOProtos\Networking\Responses\DownloadSettingsResponse;
+use POGOProtos\Networking\Responses\FortDetailsResponse;
 use POGOProtos\Networking\Responses\GetGymDetailsResponse;
 use POGOProtos\Networking\Responses\GetInventoryResponse;
 use POGOProtos\Networking\Responses\GetMapObjectsResponse;
@@ -18,6 +19,7 @@ use Pokapi\Rpc\Requests\GetHatchedEggs;
 use Pokapi\Rpc\Requests\GetInventory;
 use Pokapi\Rpc\Requests\GetMapObjects;
 use Pokapi\Rpc\Requests\GetPlayer;
+use Pokapi\Rpc\Requests\GetPokestopDetails;
 use Pokapi\Rpc\Requests\MarkTutorialComplete;
 use Pokapi\Rpc\Service;
 
@@ -182,6 +184,21 @@ class API
     public function getGymDetails(string $id, float $latitude, float $longitude) : GetGymDetailsResponse
     {
         $request = new GetGymDetails($this->position, $id, $latitude, $longitude);
+        return $this->service->execute($request, $this->position);
+    }
+
+    /**
+     * Get details for the given pokestop id at latitude/longitude.
+     * The maximum range for this query is ~900m from current player location.
+     *
+     * @param string $id
+     * @param float $latitude
+     * @param float $longitude
+     * @return FortDetailsResponse
+     */
+    public function getPokestopDetails(string $id, float $latitude, float $longitude) : FortDetailsResponse
+    {
+        $request = new GetPokestopDetails($id, $latitude, $longitude);
         return $this->service->execute($request, $this->position);
     }
 
