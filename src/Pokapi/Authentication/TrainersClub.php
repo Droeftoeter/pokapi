@@ -5,6 +5,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use Pokapi\Exception\AuthenticationException;
+use Pokapi\Exception\NoTokenException;
 
 /**
  * Class TrainersClub
@@ -100,7 +102,7 @@ class TrainersClub implements Provider
         }
 
         if ($ticket === null) {
-            throw new \Exception("No token....");
+            throw new NoTokenException();
         }
 
         // Make oAuth request
@@ -118,7 +120,7 @@ class TrainersClub implements Provider
                 ]
             ]);
         } catch(ServerException $e) {
-            throw new \Exception($e);
+            throw new AuthenticationException("Error completing oAuth flow.", 0, $e);
         }
 
         parse_str($response->getBody()->getContents(), $data);
@@ -150,13 +152,15 @@ class TrainersClub implements Provider
         }
 
         if ($response->getStatusCode() !== 200) {
-            throw new \Exception("Wrong Response " . $response->getStatusCode());
+            throw new AuthenticationException("Could not retrieve execution token. Got status code " . $response->getStatusCode());
         }
 
         $jsonData = json_decode($response->getBody()->getContents());
 
-        if ($jsonData) {
-            return $jsonData;
+        if (!$jsonData || !isset($jsonData->execution)) {
+            throw new AuthenticationException("Could not retrieve execution token. Invalid JSON.");
         }
+
+        return $jsonData;
     }
 }

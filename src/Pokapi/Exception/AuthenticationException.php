@@ -2,11 +2,11 @@
 namespace Pokapi\Exception;
 
 /**
- * Class RequestException
+ * Class AuthenticationException
  *
  * @package Pokapi\Exception
  * @author Freek Post <freek@kobalt.blue>
  */
-class RequestException extends Exception
+class AuthenticationException extends Exception
 {
 }
