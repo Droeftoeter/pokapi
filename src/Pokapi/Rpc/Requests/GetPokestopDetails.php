@@ -57,6 +57,6 @@ class GetPokestopDetails extends Request{
      */
     public function getResponse(string $data)
     {
-        return new FortDetailsResponse();
+        return new FortDetailsResponse($data);
     }
 }

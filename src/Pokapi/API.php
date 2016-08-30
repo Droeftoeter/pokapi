@@ -162,7 +162,7 @@ class API
     }
 
     /**
-     * Get map objets
+     * Get map objects
      *
      * @return GetMapObjectsResponse
      */
