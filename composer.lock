@@ -4,21 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6f12103fd91314149e6aea9cbb48c5a0",
-    "content-hash": "7eaf8a1d4a3ad6d86ad2530cdf684785",
+    "content-hash": "7242d0de9b8c966046917dabd462cf47",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
-            "version": "6.2.1",
+            "version": "6.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "3f808fba627f2c5b69e2501217bf31af349c1427"
+                "reference": "ebf29dee597f02f09f4d5bbecc68230ea9b08f60"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/3f808fba627f2c5b69e2501217bf31af349c1427",
-                "reference": "3f808fba627f2c5b69e2501217bf31af349c1427",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/ebf29dee597f02f09f4d5bbecc68230ea9b08f60",
+                "reference": "ebf29dee597f02f09f4d5bbecc68230ea9b08f60",
                 "shasum": ""
             },
             "require": {
@@ -67,32 +66,32 @@
                 "rest",
                 "web service"
             ],
-            "time": "2016-07-15 17:22:37"
+            "time": "2016-10-08T15:01:37+00:00"
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "1.2.0",
+            "version": "v1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "c10d860e2a9595f8883527fa0021c7da9e65f579"
+                "reference": "a59da6cf61d80060647ff4d3eb2c03a2bc694646"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/c10d860e2a9595f8883527fa0021c7da9e65f579",
-                "reference": "c10d860e2a9595f8883527fa0021c7da9e65f579",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/a59da6cf61d80060647ff4d3eb2c03a2bc694646",
+                "reference": "a59da6cf61d80060647ff4d3eb2c03a2bc694646",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.5.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.0"
+                "phpunit/phpunit": "^4.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0-dev"
+                    "dev-master": "1.4-dev"
                 }
             },
             "autoload": {
@@ -118,7 +117,7 @@
             "keywords": [
                 "promise"
             ],
-            "time": "2016-05-18 16:56:05"
+            "time": "2016-12-20T10:07:11+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -176,7 +175,7 @@
                 "stream",
                 "uri"
             ],
-            "time": "2016-06-24 23:00:38"
+            "time": "2016-06-24T23:00:38+00:00"
         },
         {
             "name": "jaspervdm/pogoprotos-php",
@@ -184,12 +183,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jaspervdm/pogoprotos-php.git",
-                "reference": "00e98c5bfae63a6b38757dd1db9987538479c9ae"
+                "reference": "23c0835ab19163a04a71a8e1d66a74b4353a5294"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jaspervdm/pogoprotos-php/zipball/00e98c5bfae63a6b38757dd1db9987538479c9ae",
-                "reference": "00e98c5bfae63a6b38757dd1db9987538479c9ae",
+                "url": "https://api.github.com/repos/jaspervdm/pogoprotos-php/zipball/23c0835ab19163a04a71a8e1d66a74b4353a5294",
+                "reference": "23c0835ab19163a04a71a8e1d66a74b4353a5294",
                 "shasum": ""
             },
             "require": {
@@ -229,7 +228,7 @@
                 "protobuf",
                 "protos"
             ],
-            "time": "2016-08-28 20:45:37"
+            "time": "2017-02-18 09:01:05"
         },
         {
             "name": "nicklasw/s2-geometry-library-php",
@@ -237,12 +236,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/NicklasWallgren/s2-geometry-library-php.git",
-                "reference": "803992b814d1ce8aaaccb905937e5a26d53d27ce"
+                "reference": "a657efe66018b1ed1b7b67899712b0ae6de1f600"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NicklasWallgren/s2-geometry-library-php/zipball/803992b814d1ce8aaaccb905937e5a26d53d27ce",
-                "reference": "803992b814d1ce8aaaccb905937e5a26d53d27ce",
+                "url": "https://api.github.com/repos/NicklasWallgren/s2-geometry-library-php/zipball/a657efe66018b1ed1b7b67899712b0ae6de1f600",
+                "reference": "a657efe66018b1ed1b7b67899712b0ae6de1f600",
                 "shasum": ""
             },
             "require-dev": {
@@ -256,7 +255,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "description": "Fork - Port of s2-geometry-library-java into PHP",
-            "time": "2016-08-27 12:47:20"
+            "time": "2016-08-31 10:17:06"
         },
         {
             "name": "pogo-php/pogoencrypt-php",
@@ -283,7 +282,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "description": "Pure PHP implementation of Pokemon Go encrypt.c",
-            "time": "2016-08-11 16:48:51"
+            "time": "2016-08-11T16:48:51+00:00"
         },
         {
             "name": "protobuf-php/google-protobuf-proto",
@@ -338,16 +337,16 @@
         },
         {
             "name": "protobuf-php/protobuf",
-            "version": "v0.1.2",
+            "version": "v0.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/protobuf-php/protobuf.git",
-                "reference": "29c66d295370e0772ffdaab308be6a78d16041bc"
+                "reference": "c0da95f75ea418b39b02ff4528ca9926cc246a8c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/protobuf-php/protobuf/zipball/29c66d295370e0772ffdaab308be6a78d16041bc",
-                "reference": "29c66d295370e0772ffdaab308be6a78d16041bc",
+                "url": "https://api.github.com/repos/protobuf-php/protobuf/zipball/c0da95f75ea418b39b02ff4528ca9926cc246a8c",
+                "reference": "c0da95f75ea418b39b02ff4528ca9926cc246a8c",
                 "shasum": ""
             },
             "require": {
@@ -398,7 +397,7 @@
                 "protocol buffer",
                 "serializing"
             ],
-            "time": "2016-08-04 03:18:49"
+            "time": "2016-09-21T23:47:34+00:00"
         },
         {
             "name": "psr/http-message",
@@ -448,7 +447,54 @@
                 "request",
                 "response"
             ],
-            "time": "2016-08-06 14:39:51"
+            "time": "2016-08-06T14:39:51+00:00"
+        },
+        {
+            "name": "psr/log",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/log.git",
+                "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
+                "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Log\\": "Psr/Log/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for logging libraries",
+            "homepage": "https://github.com/php-fig/log",
+            "keywords": [
+                "log",
+                "psr",
+                "psr-3"
+            ],
+            "time": "2016-10-10T12:19:37+00:00"
         }
     ],
     "packages-dev": [],

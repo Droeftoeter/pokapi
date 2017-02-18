@@ -8,20 +8,21 @@ use POGOProtos\Networking\Responses\GetInventoryResponse;
 use POGOProtos\Networking\Responses\GetMapObjectsResponse;
 use POGOProtos\Networking\Responses\GetPlayerResponse;
 use POGOProtos\Networking\Responses\MarkTutorialCompleteResponse;
-use Pokapi\Authentication\Provider;
+use Pokapi\Authentication;
+use Pokapi\Hashing;
 use Pokapi\Request\DeviceInfo;
 use Pokapi\Request\Position;
 use Pokapi\Rpc\Request;
-use Pokapi\Rpc\Requests\CheckAwardedBadges;
 use Pokapi\Rpc\Requests\DownloadSettings;
 use Pokapi\Rpc\Requests\GetGymDetails;
-use Pokapi\Rpc\Requests\GetHatchedEggs;
 use Pokapi\Rpc\Requests\GetInventory;
 use Pokapi\Rpc\Requests\GetMapObjects;
 use Pokapi\Rpc\Requests\GetPlayer;
 use Pokapi\Rpc\Requests\GetPokestopDetails;
 use Pokapi\Rpc\Requests\MarkTutorialComplete;
 use Pokapi\Rpc\Service;
+use Pokapi\Version\Version;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class API
@@ -50,14 +51,23 @@ class API
     /**
      * API constructor.
      *
-     * @param Provider $authProvider
-     * @param Position $position
-     * @param DeviceInfo $deviceInfo
+     * @param Version                 $version
+     * @param Authentication\Provider $authProvider
+     * @param Position                $position
+     * @param DeviceInfo              $deviceInfo
+     * @param Hashing\Provider|null   $hashingProvider
+     * @param LoggerInterface|null    $logger
      */
-    public function __construct(Provider $authProvider, Position $position, DeviceInfo $deviceInfo)
-    {
-        $this->service = new Service($authProvider, $deviceInfo);
-        $this->position = $position;
+    public function __construct(
+        Version $version,
+        Authentication\Provider $authProvider,
+        Position $position,
+        DeviceInfo $deviceInfo,
+        Hashing\Provider $hashingProvider = null,
+        LoggerInterface $logger = null
+    ) {
+        $this->service    = new Service($version, $authProvider, $deviceInfo, $hashingProvider, 2, $logger);
+        $this->position   = $position;
         $this->deviceInfo = $deviceInfo;
     }
 
@@ -95,11 +105,7 @@ class API
     public function initialize()
     {
         $messages = [
-            new GetPlayer(),
-            new GetHatchedEggs(),
-            new GetInventory(),
-            new CheckAwardedBadges(),
-            new DownloadSettings(),
+            new DownloadSettings()
         ];
 
         $collection = $this->service->batchExecute(

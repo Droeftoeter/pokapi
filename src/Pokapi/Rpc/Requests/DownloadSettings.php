@@ -16,6 +16,21 @@ class DownloadSettings extends Request
 {
 
     /**
+     * @var null|string
+     */
+    protected $hash;
+
+    /**
+     * DownloadSettings constructor.
+     *
+     * @param null|string $hash
+     */
+    public function __construct(string $hash = null)
+    {
+        $this->hash = $hash;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getType() : RequestType
@@ -29,7 +44,7 @@ class DownloadSettings extends Request
     public function getMessage()
     {
         $message = new DownloadSettingsMessage();
-        $message->setHash('2788184af4004004d6ab0740f7632983332106f6');
+        $message->setHash($this->hash);
         return $message;
     }
 

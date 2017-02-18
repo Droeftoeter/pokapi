@@ -51,7 +51,7 @@ abstract class Request
         $request->setRequestType($this->getType());
 
         if (($message = $this->getMessage()) !== null) {
-            $request->setRequestMessage($message->toStream()->getContents());
+            $request->setRequestMessage($message->toStream());
         }
 
         return $request;
