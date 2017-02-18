@@ -6,18 +6,20 @@ use POGOEncrypt\Encrypt;
 use POGOProtos\Networking\Envelopes\RequestEnvelope;
 use POGOProtos\Networking\Envelopes\ResponseEnvelope;
 use POGOProtos\Networking\Envelopes\Signature;
-use POGOProtos\Networking\Envelopes\Unknown6;
 use POGOProtos\Networking\Platform\PlatformRequestType;
 use POGOProtos\Networking\Platform\Requests\SendEncryptedSignatureRequest;
-use Pokapi\Authentication\Provider;
-use Pokapi\Authentication\Token;
+use Pokapi\Authentication;
+use Pokapi\Hashing;
 use Pokapi\Exception\NoResponse;
 use Pokapi\Exception\RequestException;
 use Pokapi\Exception\ThrottledException;
 use Pokapi\Request\DeviceInfo;
 use Pokapi\Request\Position;
-use Pokapi\Utility\Signature as SignatureUtil;
+use Pokapi\Version\Version;
 use Protobuf\AbstractMessage;
+use Protobuf\MessageCollection;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Class Service
@@ -39,7 +41,7 @@ class Service
     protected $endpoint = 'https://pgorelease.nianticlabs.com/plfe/rpc';
 
     /**
-     * @var Provider
+     * @var Authentication\Provider
      */
     protected $authentication;
 
@@ -59,7 +61,7 @@ class Service
     protected $httpClient;
 
     /**
-     * @var Token
+     * @var Authentication\Token
      */
     protected $token;
 
@@ -84,23 +86,48 @@ class Service
     protected $retryCount;
 
     /**
+     * @var Hashing\Provider
+     */
+    protected $hashingProvider;
+
+    /**
+     * @var Version
+     */
+    protected $version;
+
+    /**
      * @var ResponseEnvelope
      */
     protected $lastResponse;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * Service constructor.
      *
-     * @param Provider $authenticationProvider
-     * @param DeviceInfo $deviceInfo
-     * @param int $throttleRetryCount
+     * @param Version                 $version
+     * @param Authentication\Provider $authenticationProvider
+     * @param DeviceInfo              $deviceInfo
+     * @param Hashing\Provider|null   $hashingProvider
+     * @param int                     $throttleRetryCount
+     * @param LoggerInterface|null    $logger
      */
-    public function __construct(Provider $authenticationProvider, DeviceInfo $deviceInfo, $throttleRetryCount = 2)
-    {
+    public function __construct(
+        Version $version,
+        Authentication\Provider $authenticationProvider,
+        DeviceInfo $deviceInfo,
+        Hashing\Provider $hashingProvider = null,
+        $throttleRetryCount = 2,
+        LoggerInterface $logger = null
+    ) {
+        $this->version        = $version;
         $this->authentication = $authenticationProvider;
-        $this->deviceInfo = $deviceInfo;
-        $this->requestId = mt_rand();
-        $this->httpClient = new Client([
+        $this->deviceInfo     = $deviceInfo;
+        $this->requestId      = mt_rand();
+        $this->httpClient     = new Client([
             'headers' => [
                 'User-Agent' => 'Niantic App'
             ],
@@ -109,7 +136,10 @@ class Service
         ]);
 
         $this->retryCount = $throttleRetryCount;
-        $this->startTime = round(microtime(true) * 1000);
+        $this->startTime  = round(microtime(true) * 1000);
+
+        $this->hashingProvider = $hashingProvider !== null ? $hashingProvider : new Hashing\Native();
+        $this->logger          = $logger !== null ? $logger : new NullLogger();
     }
 
     /**
@@ -139,8 +169,8 @@ class Service
         $this->lastRequestMs = round(microtime(true) * 1000);
 
         $envelope = $this->createEnvelope($requests, $position);
-
         $contents = $envelope->toStream()->getContents();
+
         try {
             $response = $this->httpClient->post($this->endpoint, [
                 'body' => $contents
@@ -148,6 +178,8 @@ class Service
         } catch(\Exception $e) {
             throw new RequestException($e->getMessage(), $e->getCode(), $e);
         }
+
+        $this->logger->debug("Received HTTP Status {StatusCode}", array('StatusCode' => $response->getStatusCode()));
 
         if ($response->getStatusCode() !== 200) {
             throw new \Exception("Wrong statuscode: " . $response->getStatusCode());
@@ -165,15 +197,35 @@ class Service
         $this->lastResponse = $responseEnvelope;
 
         if ($responseEnvelope->getAuthTicket()) {
+            $this->logger->debug("Received AuthTicket");
             $this->ticket = AuthTicket::fromProto($responseEnvelope->getAuthTicket());
         }
 
         if (!empty($responseEnvelope->getApiUrl())) {
+            $this->logger->debug("Received new API Endpoint {URL}", array('URL' => $responseEnvelope->getApiUrl()));
             $this->setEndpoint($responseEnvelope->getApiUrl());
         }
 
-        if ($responseEnvelope->getStatusCode() === ResponseEnvelope\StatusCode::REDIRECT()) {
+        $this->logger->debug(
+            "Received ResponseEnvelope with StatusCode {StatusCode}",
+            array(
+                'StatusCode' => $responseEnvelope->getStatusCode()->name()
+            )
+        );
+
+        if (
+            $responseEnvelope->getStatusCode() === ResponseEnvelope\StatusCode::REDIRECT()
+        ) {
             return $this->batchExecute($requests, $position);
+        }
+
+        if ($responseEnvelope->getStatusCode() === ResponseEnvelope\StatusCode::SESSION_INVALIDATED()) {
+            $attempt++;
+            if ($attempt >= $this->retryCount) {
+                throw new ThrottledException();
+            }
+            sleep(1);
+            return $this->batchExecute($requests, $position, $attempt);
         }
 
         if ($responseEnvelope->getStatusCode() === ResponseEnvelope\StatusCode::INVALID_PLATFORM_REQUEST()) {
@@ -192,6 +244,7 @@ class Service
         }
 
         if (!empty($responseEnvelope->getReturnsList())) {
+            $this->retryCount = 0;
             return $responseEnvelope->getReturnsList();
         }
 
@@ -257,6 +310,8 @@ class Service
      */
     protected function createEnvelope(array $requests, Position $position) : RequestEnvelope
     {
+        $authInfo = null;
+
         $envelope = new RequestEnvelope();
         $envelope->setStatusCode(2);
         $envelope->setLatitude($position->getLatitude());
@@ -285,8 +340,15 @@ class Service
             $envelope->addRequests($request->toProtobufRequest());
         }
 
+        // Attach the UNKNOWN_PTR_8 request if version is > 4500
+        if ($this->version->getVersion() > 4500) {
+            $platform8Request = new RequestEnvelope\PlatformRequest();
+            $platform8Request->setType(PlatformRequestType::UNKNOWN_PTR_8());
+            $platform8Request->setRequestMessage($this->version->getPlatform8());
+        }
+
+        // Add an encrypted signature platform request to the envelope.
         if ($this->ticket && !$this->ticket->hasExpired()) {
-            // Add an encrypted signature platform request to the envelope.
             $platformRequest = new RequestEnvelope\PlatformRequest();
             $platformRequest->setType(PlatformRequestType::SEND_ENCRYPTED_SIGNATURE());
 
@@ -296,8 +358,9 @@ class Service
             $platformRequest->setRequestMessage($encryptedSigRequest->toStream());
 
             $envelope->addPlatformRequests($platformRequest);
-            $envelope->setMsSinceLastLocationfix(rand(3000, 9000));
         }
+
+        $envelope->setMsSinceLastLocationfix(rand(200, 800));
 
         return $envelope;
     }
@@ -312,40 +375,30 @@ class Service
      */
     protected function generateSignature(array $requests, Position $position) : string
     {
-        $serializedTicket = $this->ticket->toProto()->toStream()->getContents();
+        $time    = round(microtime(true) * 1000);
+        $request = new Hashing\Request(
+            $this->version,
+            $this->ticket,
+            $position,
+            $time,
+            $this->getSessionHash(),
+            $requests
+        );
+
+        $response = $this->hashingProvider->calculate($request);
 
         $signature = new Signature();
-        $signature->setLocationHash1(
-            SignatureUtil::generateLocation1(
-                $serializedTicket,
-                $position->getLatitude(),
-                $position->getLongitude(),
-                $position->getAccuracy()
-            )
-        );
+        $signature->setLocationHash1($response->getLocationAuthHash());
+        $signature->setLocationHash2($response->getLocationHash());
 
-        $signature->setLocationHash2(
-            SignatureUtil::generateLocation2(
-                $position->getLatitude(),
-                $position->getLongitude(),
-                $position->getAccuracy()
-            )
-        );
-
-        foreach ($requests as $request) {
-            $signature->addRequestHash(
-                SignatureUtil::generateRequestHash(
-                    $serializedTicket,
-                    $request->toProtobufRequest()->toStream()->getContents()
-                )
-            );
+        foreach ($response->getRequestHashes() as $requestHash) {
+            $signature->addRequestHash($requestHash);
         }
 
-        $time = round(microtime(true) * 1000);
         $signature->setSessionHash($this->getSessionHash());
         $signature->setTimestamp($time);
         $signature->setTimestampSinceStart($time - $this->startTime);
-        $signature->setUnknown25(0x898654dd2753a481);
+        $signature->setUnknown25(-1553869577012279119);
 
         $signature->setDeviceInfo($this->deviceInfo->toProtobuf());
 
@@ -353,7 +406,7 @@ class Service
             $signature->addLocationFix($fix);
         }
 
-        $signature->setSensorInfo($this->generateSensorInfo());
+        $signature->setSensorInfoList($this->generateSensorInfo());
 
         return Encrypt::encrypt($signature->toStream()->getContents(), random_bytes(32));
     }
@@ -417,10 +470,11 @@ class Service
     /**
      * Generate sensor information
      *
-     * @return Signature\SensorInfo
+     * @return MessageCollection
      */
-    protected function generateSensorInfo() : Signature\SensorInfo
+    protected function generateSensorInfo() : MessageCollection
     {
+        $list       = new MessageCollection();
         $sensorData = Sensors::createRandom(3);
 
         /* Fetch data */
@@ -432,13 +486,13 @@ class Service
 
         $sensorInfo = new Signature\SensorInfo();
         $sensorInfo->setTimestampSnapshot(rand(1000,3500));
-        $sensorInfo->setAccelerometerAxes(3);
+        //$sensorInfo->setAccelerometerAxes(3);
 
         /* MOTION SENSORS */
         /* Rotation Vector */
-        $sensorInfo->setRotationVectorX($angle[0]);
+        /*$sensorInfo->setRotationVectorX($angle[0]);
         $sensorInfo->setRotationVectorY($angle[1]);
-        $sensorInfo->setRotationVectorZ($angle[2]);
+        $sensorInfo->setRotationVectorZ($angle[2]);*/
 
         /* Linear Acceleration (this excludes gravity) */
         $sensorInfo->setLinearAccelerationX($normAccell[0]);
@@ -453,9 +507,9 @@ class Service
         $sensorInfo->setGravityZ($rawAccell[2]);
 
         /* Gyroscope */
-        $sensorInfo->setGyroscopeRawX($gyro[0]);
+        /*$sensorInfo->setGyroscopeRawX($gyro[0]);
         $sensorInfo->setGyroscopeRawY($gyro[1]);
-        $sensorInfo->setGyroscopeRawZ($gyro[2]);
+        $sensorInfo->setGyroscopeRawZ($gyro[2]);*/
 
         /* POSITION SENSORS */
         /* Magnetic field */
@@ -463,6 +517,8 @@ class Service
         $sensorInfo->setMagneticFieldY($magneto[1]);
         $sensorInfo->setMagneticFieldZ($magneto[2]);
 
-        return $sensorInfo;
+        $list->add($sensorInfo);
+
+        return $list;
     }
 }

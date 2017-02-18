@@ -1,12 +1,13 @@
 {
     "name": "sjaakmoes/pokapi",
     "require": {
-        "php": "^7.0",
+        "php": "^7.1",
         "guzzlehttp/guzzle": "^6.2",
         "nicklasw/s2-geometry-library-php": "dev-master",
         "protobuf-php/google-protobuf-proto": "dev-master",
         "pogo-php/pogoencrypt-php": "^1.0",
-        "jaspervdm/pogoprotos-php": "dev-master"
+        "jaspervdm/pogoprotos-php": "dev-master",
+        "psr/log": "^1.0"
     },
     "authors": [
         {
