@@ -1,6 +1,7 @@
 <?php
 namespace Pokapi;
 
+use POGOProtos\Networking\Responses\CheckChallengeResponse;
 use POGOProtos\Networking\Responses\DownloadSettingsResponse;
 use POGOProtos\Networking\Responses\FortDetailsResponse;
 use POGOProtos\Networking\Responses\GetGymDetailsResponse;
@@ -8,11 +9,13 @@ use POGOProtos\Networking\Responses\GetInventoryResponse;
 use POGOProtos\Networking\Responses\GetMapObjectsResponse;
 use POGOProtos\Networking\Responses\GetPlayerResponse;
 use POGOProtos\Networking\Responses\MarkTutorialCompleteResponse;
+use POGOProtos\Networking\Responses\VerifyChallengeResponse;
 use Pokapi\Authentication;
 use Pokapi\Hashing;
 use Pokapi\Request\DeviceInfo;
 use Pokapi\Request\Position;
 use Pokapi\Rpc\Request;
+use Pokapi\Rpc\Requests\CheckChallenge;
 use Pokapi\Rpc\Requests\DownloadSettings;
 use Pokapi\Rpc\Requests\GetGymDetails;
 use Pokapi\Rpc\Requests\GetInventory;
@@ -20,6 +23,7 @@ use Pokapi\Rpc\Requests\GetMapObjects;
 use Pokapi\Rpc\Requests\GetPlayer;
 use Pokapi\Rpc\Requests\GetPokestopDetails;
 use Pokapi\Rpc\Requests\MarkTutorialComplete;
+use Pokapi\Rpc\Requests\VerifyChallenge;
 use Pokapi\Rpc\Service;
 use Pokapi\Version\Version;
 use Psr\Log\LoggerInterface;
@@ -66,7 +70,7 @@ class API
         Hashing\Provider $hashingProvider = null,
         LoggerInterface $logger = null
     ) {
-        $this->service    = new Service($version, $authProvider, $deviceInfo, $hashingProvider, 2, $logger);
+        $this->service    = new Service($version, $authProvider, $deviceInfo, $hashingProvider, 3, $logger);
         $this->position   = $position;
         $this->deviceInfo = $deviceInfo;
     }
@@ -121,6 +125,30 @@ class API
         return array_map(function($response, Request $message){
             return $message->getResponse($response);
         }, $responses, $messages);
+    }
+
+    /**
+     * Check if there is a CAPTCHA challenge.
+     *
+     * @return CheckChallengeResponse
+     */
+    public function checkChallenge() : CheckChallengeResponse
+    {
+        $request = new CheckChallenge();
+        return $this->service->execute($request, $this->position);
+    }
+
+    /**
+     * Verify token
+     *
+     * @param string $token
+     *
+     * @return VerifyChallengeResponse
+     */
+    public function verifyChallenge(string $token) : VerifyChallengeResponse
+    {
+        $request = new VerifyChallenge($token);
+        return $this->service->execute($request, $this->position);
     }
 
     /**
