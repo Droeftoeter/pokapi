@@ -39,7 +39,7 @@ class Native implements Provider
             throw new UnsupportedVersionException($request->getVersion());
         }
 
-        $ticket = $request->getAuthTicket()->toProto()->toStream()->getContents();
+        $ticket = $request->getAuthData()->getData();
 
         $locationAuth = $this->generateLocationAuth(
             $ticket,

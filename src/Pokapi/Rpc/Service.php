@@ -8,6 +8,8 @@ use POGOProtos\Networking\Envelopes\ResponseEnvelope;
 use POGOProtos\Networking\Envelopes\Signature;
 use POGOProtos\Networking\Platform\PlatformRequestType;
 use POGOProtos\Networking\Platform\Requests\SendEncryptedSignatureRequest;
+use POGOProtos\Networking\Requests\Messages\GetMapObjectsMessage;
+use POGOProtos\Networking\Requests\Messages\GetPlayerMessage;
 use Pokapi\Authentication;
 use Pokapi\Hashing;
 use Pokapi\Exception\NoResponse;
@@ -17,6 +19,7 @@ use Pokapi\Request\DeviceInfo;
 use Pokapi\Request\Position;
 use Pokapi\Version\Version;
 use Protobuf\AbstractMessage;
+use Protobuf\Message;
 use Protobuf\MessageCollection;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -340,25 +343,31 @@ class Service
             $envelope->addRequests($request->toProtobufRequest());
         }
 
-        // Attach the UNKNOWN_PTR_8 request if version is > 4500
-        if ($this->version->getVersion() > 4500) {
+        // Attach the UNKNOWN_PTR_8 request if version is > 4500 and there is a GET_MAP_OBJECTS or GET_PLAYER request
+        $platform8Requests = array_filter(
+            $requests,
+            function (Message $request) {
+                return $request instanceof GetMapObjectsMessage || $request instanceof GetPlayerMessage;
+            }
+        );
+
+        if ($this->version->getVersion() > 4500 && count($platform8Requests) > 0) {
             $platform8Request = new RequestEnvelope\PlatformRequest();
             $platform8Request->setType(PlatformRequestType::UNKNOWN_PTR_8());
             $platform8Request->setRequestMessage($this->version->getPlatform8());
         }
 
         // Add an encrypted signature platform request to the envelope.
-        if ($this->ticket && !$this->ticket->hasExpired()) {
-            $platformRequest = new RequestEnvelope\PlatformRequest();
-            $platformRequest->setType(PlatformRequestType::SEND_ENCRYPTED_SIGNATURE());
+        $platformRequest = new RequestEnvelope\PlatformRequest();
+        $platformRequest->setType(PlatformRequestType::SEND_ENCRYPTED_SIGNATURE());
 
-            $encryptedSigRequest = new SendEncryptedSignatureRequest();
-            $encryptedSigRequest->setEncryptedSignature($this->generateSignature($requests, $position));
+        $encryptedSigRequest = new SendEncryptedSignatureRequest();
+        $encryptedSigRequest->setEncryptedSignature(
+            $this->generateSignature($requests, $position, $authInfo)
+        );
 
-            $platformRequest->setRequestMessage($encryptedSigRequest->toStream());
-
-            $envelope->addPlatformRequests($platformRequest);
-        }
+        $platformRequest->setRequestMessage($encryptedSigRequest->toStream());
+        $envelope->addPlatformRequests($platformRequest);
 
         $envelope->setMsSinceLastLocationfix(rand(200, 800));
 
@@ -368,17 +377,23 @@ class Service
     /**
      * Generate the signature
      *
-     * @param Request[] $requests
-     * @param Position $position
+     * @param Request[]                     $requests
+     * @param Position                      $position
+     * @param RequestEnvelope\AuthInfo|null $authInfo
      *
      * @return string
      */
-    protected function generateSignature(array $requests, Position $position) : string
+    protected function generateSignature(array $requests, Position $position, RequestEnvelope\AuthInfo $authInfo = null) : string
     {
+
+        $authData = $this->ticket instanceof AuthTicket && !$this->ticket->hasExpired() ?
+            Hashing\AuthData::withAuthTicket($this->ticket) :
+            Hashing\AuthData::withAuthInfo($authInfo);
+
         $time    = round(microtime(true) * 1000);
         $request = new Hashing\Request(
             $this->version,
-            $this->ticket,
+            $authData,
             $position,
             $time,
             $this->getSessionHash(),
@@ -398,7 +413,7 @@ class Service
         $signature->setSessionHash($this->getSessionHash());
         $signature->setTimestamp($time);
         $signature->setTimestampSinceStart($time - $this->startTime);
-        $signature->setUnknown25(-1553869577012279119);
+        $signature->setUnknown25($this->version->getUnknown25());
 
         $signature->setDeviceInfo($this->deviceInfo->toProtobuf());
 
