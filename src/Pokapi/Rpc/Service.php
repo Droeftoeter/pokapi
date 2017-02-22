@@ -8,8 +8,6 @@ use POGOProtos\Networking\Envelopes\ResponseEnvelope;
 use POGOProtos\Networking\Envelopes\Signature;
 use POGOProtos\Networking\Platform\PlatformRequestType;
 use POGOProtos\Networking\Platform\Requests\SendEncryptedSignatureRequest;
-use POGOProtos\Networking\Requests\Messages\GetMapObjectsMessage;
-use POGOProtos\Networking\Requests\Messages\GetPlayerMessage;
 use Pokapi\Authentication;
 use Pokapi\Hashing;
 use Pokapi\Exception\NoResponse;
@@ -17,9 +15,10 @@ use Pokapi\Exception\RequestException;
 use Pokapi\Exception\ThrottledException;
 use Pokapi\Request\DeviceInfo;
 use Pokapi\Request\Position;
+use Pokapi\Rpc\Requests\GetMapObjects;
+use Pokapi\Rpc\Requests\GetPlayer;
 use Pokapi\Version\Version;
 use Protobuf\AbstractMessage;
-use Protobuf\Message;
 use Protobuf\MessageCollection;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -346,8 +345,8 @@ class Service
         // Attach the UNKNOWN_PTR_8 request if version is > 4500 and there is a GET_MAP_OBJECTS or GET_PLAYER request
         $platform8Requests = array_filter(
             $requests,
-            function (Message $request) {
-                return $request instanceof GetMapObjectsMessage || $request instanceof GetPlayerMessage;
+            function (Request $request) {
+                return $request instanceof GetMapObjects || $request instanceof GetPlayer;
             }
         );
 
