@@ -19,6 +19,8 @@ $api->setCaptchaSolver($solver);
 $result = $api->checkChallenge(); // FALSE on no capture, TRUE on resolved. Exception on failure to resolve.
 ```
 
+You can implement your own resolvers by implementing the `Solver` interface.
+
 ## Hashing Server
 Pokapi now supports the use of a Hashing Server, see Usage.
 
