@@ -5,6 +5,20 @@ Not finished at all so far.
 
 Supports request signing.
 
+## Captcha
+Pokapi can now solve captchas if you provide a Captcha-Solver.
+A class for AntiCaptcha.com is built in:
+
+```php
+// Solver
+$solver = new AntiCaptcha("your_api_key_here", "PoGo_site_key");
+
+$api->setCaptchaSolver($solver);
+
+// The checkChallenge function will now try to resolve a possible captcha automatically with the provided resolver.
+$result = $api->checkChallenge(); // FALSE on no capture, TRUE on resolved. Exception on failure to resolve.
+```
+
 ## Hashing Server
 Pokapi now supports the use of a Hashing Server, see Usage.
 
