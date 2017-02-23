@@ -373,6 +373,7 @@ class Service
             throw new FailedCaptchaException("Failed to resolve CAPTCHA. Request a new challenge to retry.");
         }
 
+        $this->logger->debug("Hooray! Account is not flagged for CAPTCHA.");
         return false;
     }
 
