@@ -15,8 +15,10 @@ use Pokapi\Exception\RequestException;
 use Pokapi\Exception\ThrottledException;
 use Pokapi\Request\DeviceInfo;
 use Pokapi\Request\Position;
+use Pokapi\Rpc\Requests\CheckChallenge;
 use Pokapi\Rpc\Requests\GetMapObjects;
 use Pokapi\Rpc\Requests\GetPlayer;
+use Pokapi\Rpc\Requests\VerifyChallenge;
 use Pokapi\Version\Version;
 use Protobuf\AbstractMessage;
 use Protobuf\MessageCollection;
@@ -108,6 +110,11 @@ class Service
     protected $logger;
 
     /**
+     * @var bool
+     */
+    protected $shouldCheckCaptcha = true;
+
+    /**
      * Service constructor.
      *
      * @param Version                 $version
@@ -155,6 +162,16 @@ class Service
     }
 
     /**
+     * Check if we should check for a challenge on the next request
+     *
+     * @return bool
+     */
+    public function shouldCheckChallenge()
+    {
+        return $this->shouldCheckCaptcha;
+    }
+
+    /**
      * Execute multiple requests
      *
      * @param array $requests
@@ -172,6 +189,17 @@ class Service
 
         $envelope = $this->createEnvelope($requests, $position);
         $contents = $envelope->toStream()->getContents();
+
+        $captchaRequest = array_filter(
+            $requests,
+            function (Request $request) {
+                return $request instanceof CheckChallenge || $request instanceof VerifyChallenge;
+            }
+        );
+
+        if ($captchaRequest) {
+            $this->shouldCheckCaptcha = false;
+        }
 
         try {
             $response = $this->httpClient->post($this->endpoint, [
@@ -206,6 +234,7 @@ class Service
         if (!empty($responseEnvelope->getApiUrl())) {
             $this->logger->debug("Received new API Endpoint {URL}", array('URL' => $responseEnvelope->getApiUrl()));
             $this->setEndpoint($responseEnvelope->getApiUrl());
+            $this->shouldCheckCaptcha = true;
         }
 
         $this->logger->debug(

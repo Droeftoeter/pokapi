@@ -225,7 +225,7 @@ class API
     public function acceptTerms() : MarkTutorialCompleteResponse
     {
         $request = new MarkTutorialComplete();
-        return $this->service->execute($request, $this->position);
+        return $this->executeRequest($request);
     }
 
     /**
@@ -236,7 +236,7 @@ class API
     public function getPlayerData() : GetPlayerResponse
     {
         $request = new GetPlayer();
-        return $this->service->execute($request, $this->position);
+        return $this->executeRequest($request);
     }
 
     /**
@@ -247,7 +247,7 @@ class API
     public function getInventory() : GetInventoryResponse
     {
         $request = new GetInventory();
-        return $this->service->execute($request, $this->position);
+        return $this->executeRequest($request);
     }
 
     /**
@@ -258,7 +258,7 @@ class API
     public function downloadSettings() : DownloadSettingsResponse
     {
         $request = new DownloadSettings();
-        return $this->service->execute($request, $this->position);
+        return $this->executeRequest($request);
     }
 
     /**
@@ -269,7 +269,7 @@ class API
     public function getMapObjects() : GetMapObjectsResponse
     {
         $request = new GetMapObjects($this->position);
-        return $this->service->execute($request, $this->position);
+        return $this->executeRequest($request);
     }
 
     /**
@@ -284,7 +284,7 @@ class API
     public function getGymDetails(string $id, float $latitude, float $longitude) : GetGymDetailsResponse
     {
         $request = new GetGymDetails($this->position, $id, $latitude, $longitude);
-        return $this->service->execute($request, $this->position);
+        return $this->executeRequest($request);
     }
 
     /**
@@ -299,7 +299,7 @@ class API
     public function getPokestopDetails(string $id, float $latitude, float $longitude) : FortDetailsResponse
     {
         $request = new GetPokestopDetails($id, $latitude, $longitude);
-        return $this->service->execute($request, $this->position);
+        return $this->executeRequest($request);
     }
 
     /**
@@ -310,6 +310,22 @@ class API
     public function getService() : Service
     {
         return $this->service;
+    }
+
+    /**
+     * Execute a request
+     *
+     * @param Request $request
+     *
+     * @return \Protobuf\AbstractMessage
+     */
+    protected function executeRequest(Request $request)
+    {
+        if ($this->service->shouldCheckChallenge() && $this->captchaSolver instanceof Solver) {
+            $this->checkChallenge();
+        }
+
+        return $this->service->execute($request, $this->position);
     }
 
     /**
