@@ -269,7 +269,7 @@ class Service
             if ($attempt >= $this->retryCount) {
                 throw new ThrottledException();
             }
-            sleep(1);
+            sleep(2);
             return $this->batchExecute($requests, $position, $attempt);
         }
 
@@ -278,7 +278,7 @@ class Service
             if ($attempt >= $this->retryCount) {
                 throw new ThrottledException();
             }
-            sleep(1);
+            sleep(2);
             return $this->batchExecute($requests, $position, $attempt);
         }
 
@@ -359,7 +359,7 @@ class Service
             $this->logger->info("Received CAPTCHA solution. Verifying...");
 
             /* Wait before firing verification */
-            sleep(1);
+            sleep(2);
             $verification = new VerifyChallenge($token);
 
             /** @var VerifyChallengeResponse $response */
@@ -367,12 +367,14 @@ class Service
 
             if ($response->hasSuccess()) {
                 $this->logger->info("Successfully solved CAPTCHA.");
+                sleep(2);
                 return true;
             }
 
             throw new FailedCaptchaException("Failed to resolve CAPTCHA. Request a new challenge to retry.");
         }
 
+        sleep(2);
         $this->logger->debug("Hooray! Account is not flagged for CAPTCHA.");
         return false;
     }
