@@ -84,7 +84,7 @@ class API
         LoggerInterface $logger = null,
         Solver $captchaSolver = null
     ) {
-        $this->service       = new Service($version, $authProvider, $deviceInfo, $hashingProvider, 3, $logger, $captchaSolver);
+        $this->service       = new Service($version, $authProvider, $deviceInfo, $hashingProvider, 3, $captchaSolver, $logger);
         $this->position      = $position;
         $this->deviceInfo    = $deviceInfo;
         $this->captchaSolver = $captchaSolver;
