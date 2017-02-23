@@ -1,6 +1,7 @@
 <?php
 namespace Pokapi\Rpc;
 
+use Exception;
 use GuzzleHttp\Client;
 use POGOEncrypt\Encrypt;
 use POGOProtos\Networking\Envelopes\RequestEnvelope;
@@ -8,7 +9,12 @@ use POGOProtos\Networking\Envelopes\ResponseEnvelope;
 use POGOProtos\Networking\Envelopes\Signature;
 use POGOProtos\Networking\Platform\PlatformRequestType;
 use POGOProtos\Networking\Platform\Requests\SendEncryptedSignatureRequest;
+use POGOProtos\Networking\Responses\CheckChallengeResponse;
+use POGOProtos\Networking\Responses\VerifyChallengeResponse;
 use Pokapi\Authentication;
+use Pokapi\Captcha\Solver;
+use Pokapi\Exception\FailedCaptchaException;
+use Pokapi\Exception\FlaggedAccountException;
 use Pokapi\Hashing;
 use Pokapi\Exception\NoResponse;
 use Pokapi\Exception\RequestException;
@@ -105,14 +111,29 @@ class Service
     protected $lastResponse;
 
     /**
+     * @var Position
+     */
+    protected $lastPosition;
+
+    /**
      * @var LoggerInterface
      */
     protected $logger;
 
     /**
-     * @var bool
+     * @var Solver
      */
-    protected $shouldCheckCaptcha = true;
+    protected $captchaResolver;
+
+    /**
+     * @var int
+     */
+    protected $rsc;
+
+    /**
+     * @var int
+     */
+    protected $rscThreshold;
 
     /**
      * Service constructor.
@@ -122,6 +143,7 @@ class Service
      * @param DeviceInfo              $deviceInfo
      * @param Hashing\Provider|null   $hashingProvider
      * @param int                     $throttleRetryCount
+     * @param Solver|null             $captchaSolver
      * @param LoggerInterface|null    $logger
      */
     public function __construct(
@@ -129,7 +151,8 @@ class Service
         Authentication\Provider $authenticationProvider,
         DeviceInfo $deviceInfo,
         Hashing\Provider $hashingProvider = null,
-        $throttleRetryCount = 2,
+        int $throttleRetryCount = 2,
+        Solver $captchaSolver = null,
         LoggerInterface $logger = null
     ) {
         $this->version        = $version;
@@ -144,10 +167,13 @@ class Service
             'verify' => false,
         ]);
 
-        $this->retryCount = $throttleRetryCount;
-        $this->startTime  = round(microtime(true) * 1000);
+        $this->retryCount   = $throttleRetryCount;
+        $this->rsc          = 0;
+        $this->rscThreshold = 5;
+        $this->startTime    = round(microtime(true) * 1000);
 
         $this->hashingProvider = $hashingProvider !== null ? $hashingProvider : new Hashing\Native();
+        $this->captchaResolver = $captchaSolver;
         $this->logger          = $logger !== null ? $logger : new NullLogger();
     }
 
@@ -162,16 +188,6 @@ class Service
     }
 
     /**
-     * Check if we should check for a challenge on the next request
-     *
-     * @return bool
-     */
-    public function shouldCheckChallenge()
-    {
-        return $this->shouldCheckCaptcha;
-    }
-
-    /**
      * Execute multiple requests
      *
      * @param array $requests
@@ -181,38 +197,36 @@ class Service
      * @return \Protobuf\Collection
      *
      * @throws NoResponse
-     * @throws \Exception
+     * @throws Exception
      */
     public function batchExecute(array $requests, Position $position, $attempt = 0)
     {
+        /* CAPTCHA first? */
+        $this->rsc++;
+        if ($this->rsc > $this->rscThreshold) {
+            if ($this->captchaResolver instanceof Solver) {
+                $this->checkChallenge($position);
+            }
+        }
+
         $this->lastRequestMs = round(microtime(true) * 1000);
+        $this->lastPosition  = $position;
 
         $envelope = $this->createEnvelope($requests, $position);
         $contents = $envelope->toStream()->getContents();
-
-        $captchaRequest = array_filter(
-            $requests,
-            function (Request $request) {
-                return $request instanceof CheckChallenge || $request instanceof VerifyChallenge;
-            }
-        );
-
-        if ($captchaRequest) {
-            $this->shouldCheckCaptcha = false;
-        }
 
         try {
             $response = $this->httpClient->post($this->endpoint, [
                 'body' => $contents
             ]);
-        } catch(\Exception $e) {
+        } catch(Exception $e) {
             throw new RequestException($e->getMessage(), $e->getCode(), $e);
         }
 
         $this->logger->debug("Received HTTP Status {StatusCode}", array('StatusCode' => $response->getStatusCode()));
 
         if ($response->getStatusCode() !== 200) {
-            throw new \Exception("Wrong statuscode: " . $response->getStatusCode());
+            throw new Exception("Wrong statuscode: " . $response->getStatusCode());
         }
 
         if (!$response->getBody()->isReadable()) {
@@ -234,7 +248,7 @@ class Service
         if (!empty($responseEnvelope->getApiUrl())) {
             $this->logger->debug("Received new API Endpoint {URL}", array('URL' => $responseEnvelope->getApiUrl()));
             $this->setEndpoint($responseEnvelope->getApiUrl());
-            $this->shouldCheckCaptcha = true;
+            $this->rsc = $this->rscThreshold; // Always CAPTCHA on new URI for next request.
         }
 
         $this->logger->debug(
@@ -299,12 +313,67 @@ class Service
      * @param Position $position
      *
      * @return null|AbstractMessage
-     * @throws \Exception
+     * @throws Exception
      */
     public function execute(Request $request, Position $position)
     {
         $response = $this->batchExecute([$request], $position);
         return $request->getResponse(current($response));
+    }
+
+    /**
+     * Check if there is a CAPTCHA challenge
+     *
+     * Throws if there is a challenge but no defined resolver.
+     * Returns false if there is no challenge.
+     *
+     * Will attempt to solve the CAPTCHA automatically
+     *
+     * @param Position $position
+     *
+     * @return bool
+     *
+     * @throws FailedCaptchaException
+     * @throws FlaggedAccountException
+     */
+    public function checkChallenge(Position $position)
+    {
+        $this->rsc = 0;
+
+        $request = new CheckChallenge();
+
+        /** @var CheckChallengeResponse $response */
+        $response     = $this->execute($request, $position->createRandomized());
+        $challengeUrl = trim($response->getChallengeUrl());
+
+        if ($response->getShowChallenge() || !empty($challengeUrl)) {
+            if (!$this->captchaResolver instanceof Solver) {
+                $this->logger->alert("Account has been flagged for CAPTCHA. No CAPTCHA resolver defined.");
+                throw new FlaggedAccountException($challengeUrl);
+            }
+
+            $this->logger->alert("Account has been flagged for CAPTCHA. Attempting to solve CAPTCHA with defined resolver.");
+
+            /* Attempt to solve CAPTCHA */
+            $token = $this->captchaResolver->solve($challengeUrl);
+            $this->logger->info("Received CAPTCHA solution. Verifying...");
+
+            /* Wait before firing verification */
+            sleep(1);
+            $verification = new VerifyChallenge($token);
+
+            /** @var VerifyChallengeResponse $response */
+            $response = $this->execute($verification, $position->createRandomized());
+
+            if ($response->hasSuccess()) {
+                $this->logger->info("Successfully solved CAPTCHA.");
+                return true;
+            }
+
+            throw new FailedCaptchaException("Failed to resolve CAPTCHA. Request a new challenge to retry.");
+        }
+
+        return false;
     }
 
     /**

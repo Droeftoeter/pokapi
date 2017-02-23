@@ -1,7 +1,6 @@
 <?php
 namespace Pokapi;
 
-use POGOProtos\Networking\Responses\CheckChallengeResponse;
 use POGOProtos\Networking\Responses\DownloadSettingsResponse;
 use POGOProtos\Networking\Responses\FortDetailsResponse;
 use POGOProtos\Networking\Responses\GetGymDetailsResponse;
@@ -18,7 +17,6 @@ use Pokapi\Hashing;
 use Pokapi\Request\DeviceInfo;
 use Pokapi\Request\Position;
 use Pokapi\Rpc\Request;
-use Pokapi\Rpc\Requests\CheckChallenge;
 use Pokapi\Rpc\Requests\DownloadSettings;
 use Pokapi\Rpc\Requests\GetGymDetails;
 use Pokapi\Rpc\Requests\GetInventory;
@@ -86,7 +84,7 @@ class API
         LoggerInterface $logger = null,
         Solver $captchaSolver = null
     ) {
-        $this->service       = new Service($version, $authProvider, $deviceInfo, $hashingProvider, 3, $logger);
+        $this->service       = new Service($version, $authProvider, $deviceInfo, $hashingProvider, 3, $logger, $captchaSolver);
         $this->position      = $position;
         $this->deviceInfo    = $deviceInfo;
         $this->captchaSolver = $captchaSolver;
@@ -171,37 +169,7 @@ class API
      */
     public function checkChallenge()
     {
-        $request  = new CheckChallenge();
-
-        /** @var CheckChallengeResponse $response */
-        $response     =  $this->service->execute($request, $this->position);
-        $challengeUrl = trim($response->getChallengeUrl());
-
-        if ($response->getShowChallenge() || !empty($challengeUrl)) {
-            if (!$this->captchaSolver instanceof Solver) {
-                $this->getLogger()->alert("Account has been flagged for CAPTCHA. No CAPTCHA-solver defined, returning challenge.");
-                return $challengeUrl;
-            }
-
-            $this->getLogger()->alert("Account has been flagged for CAPTCHA. Attempting to solve CAPTCHA with defined resolver.");
-
-            /* Attempt to solve CAPTCHA */
-            $token = $this->captchaSolver->solve($challengeUrl);
-            $this->getLogger()->info("Received CAPTCHA solution. Verifying...");
-
-            /* Wait 1 second before firing verification request. */
-            sleep(1);
-            $verify = $this->verifyChallenge($token);
-
-            if ($verify->hasSuccess()) {
-                $this->getLogger()->info("Successfully solved CAPTCHA.");
-                return true;
-            }
-
-            throw new FailedCaptchaException("Failed to resolve CAPTCHA.");
-        }
-
-        return false;
+        return $this->service->checkChallenge($this->position);
     }
 
     /**
@@ -214,7 +182,7 @@ class API
     public function verifyChallenge(string $token) : VerifyChallengeResponse
     {
         $request = new VerifyChallenge($token);
-        return $this->service->execute($request, $this->position);
+        return $this->executeRequest($request);
     }
 
     /**
@@ -321,10 +289,6 @@ class API
      */
     protected function executeRequest(Request $request)
     {
-        if ($this->service->shouldCheckChallenge() && $this->captchaSolver instanceof Solver) {
-            $this->checkChallenge();
-        }
-
         return $this->service->execute($request, $this->position);
     }
 
