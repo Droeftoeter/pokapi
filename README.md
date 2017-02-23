@@ -6,7 +6,7 @@ Not finished at all so far.
 Supports request signing.
 
 ## Captcha
-Pokapi can now solve captchas if you provide a Captcha-Solver.
+Pokapi can now solve captchas if you provide a Captcha resolver.
 A class for Anti-Captcha.com is built in:
 
 ```php
