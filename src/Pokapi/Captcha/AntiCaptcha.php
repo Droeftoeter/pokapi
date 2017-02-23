@@ -205,7 +205,7 @@ class AntiCaptcha implements Solver
         $postData = [
             'clientKey' => $this->apiKey,
             'task'      => array(
-                'type' => 'NoCaptchaTaskProxyLess',
+                'type' => 'NoCaptchaTaskProxyless',
                 'websiteURL'    => $challengeUrl,
                 'websiteKey'    => $this->siteKey
             )
