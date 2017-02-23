@@ -264,6 +264,13 @@ class Service
             return $this->batchExecute($requests, $position);
         }
 
+        if ($responseEnvelope->getStatusCode() === ResponseEnvelope\StatusCode::BAD_REQUEST()) {
+            throw new RequestException(
+                "Received BAD_REQUEST from API: " . $responseEnvelope->getError(),
+                $responseEnvelope->getStatusCode()->value()
+            );
+        }
+
         if ($responseEnvelope->getStatusCode() === ResponseEnvelope\StatusCode::SESSION_INVALIDATED()) {
             $attempt++;
             if ($attempt >= $this->retryCount) {
