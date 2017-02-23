@@ -7,6 +7,7 @@
         "protobuf-php/google-protobuf-proto": "dev-master",
         "pogo-php/pogoencrypt-php": "^1.0",
         "jaspervdm/pogoprotos-php": "dev-master",
+        "monolog/monolog": "^1.21",
         "psr/log": "^1.0"
     },
     "authors": [

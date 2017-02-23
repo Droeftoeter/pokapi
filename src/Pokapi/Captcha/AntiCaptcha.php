@@ -4,6 +4,7 @@ namespace Pokapi\Captcha;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception as GuzzleException;
 use Pokapi\Captcha\AntiCaptcha\Exception\BalanceTooLowException;
+use Pokapi\Captcha\AntiCaptcha\Exception\CurrentlyUnavailableException;
 use Pokapi\Captcha\AntiCaptcha\Exception\InvalidKeyException;
 use Pokapi\Captcha\Exception\RemoteSolverException;
 use Pokapi\Captcha\Exception\TimeoutException;
@@ -41,6 +42,11 @@ class AntiCaptcha implements Solver
     /**
      * @var int
      */
+    protected $retryCount;
+
+    /**
+     * @var int
+     */
     protected $interval = 3;
 
     /**
@@ -49,23 +55,36 @@ class AntiCaptcha implements Solver
     protected $logger;
 
     /**
+     * @var int
+     */
+    protected $retryInterval = 6;
+
+    /**
+     * @var int
+     */
+    protected $currentRetries = 0;
+
+    /**
      * AntiCaptcha constructor.
      *
      * @param string $apiKey
      * @param string $recaptchaSiteKey
      * @param int $timeout
+     * @param int $retryCount
      * @param LoggerInterface|null $logger
      */
     public function __construct(
         string $apiKey,
         string $recaptchaSiteKey = '',
         int $timeout = 60,
+        int $retryCount = 3,
         LoggerInterface $logger = null
     ) {
-        $this->apiKey  = $apiKey;
-        $this->siteKey = $recaptchaSiteKey;
-        $this->logger  = $logger;
-        $this->timeout = $timeout;
+        $this->apiKey     = $apiKey;
+        $this->siteKey    = $recaptchaSiteKey;
+        $this->logger     = $logger;
+        $this->retryCount = $retryCount;
+        $this->timeout    = $timeout;
     }
 
     /**
@@ -137,60 +156,28 @@ class AntiCaptcha implements Solver
      *
      * @return bool|string
      *
-     * @todo Clean this up
-     *
+     * @throws InvalidKeyException
+     * @throws BalanceTooLowException
+     * @throws CurrentlyUnavailableException
      * @throws RemoteSolverException
      */
     protected function checkResult($taskId)
     {
         $this->getLogger()->debug("Requesting Task Status for task {TaskId}", ['TaskId' => $taskId]);
 
-        $postData = [
-            'clientKey' => $this->apiKey,
-            'taskId'    => $taskId
-        ];
+        $response = $this->sendRequest('getTaskResult', ['taskId' => $taskId]);
 
-        try {
-            $response = $this->getClient()->post(static::HOST . '/getTaskResult', [
-                'json' => $postData,
-                'headers' => [
-                    'Content-Type' => 'application/json'
-                ]
-            ]);
-        } catch (GuzzleException\RequestException $e) {
-            $this->getLogger()->error("Guzzle Exception {Error}", ['Error' => $e]);
-            throw new RemoteSolverException("Error fetching AntiCaptcha Task Status", 0, $e);
-        }
-
-        $decoded = json_decode($response->getBody(), true);
-
-        if ($decoded === false) {
-            $this->getLogger()->error("AntiCaptcha API error");
-            return false;
-        }
-
-        if ($decoded['errorId'] !== 0) {
-            $this->getLogger()->error(
-                "Received AntiCaptcha ErrorId: {ErrorId}: {ErrorDescription}",
-                [
-                    'ErrorId'          => $decoded['errorId'],
-                    'ErrorDescription' => $decoded['errorDescription']
-                ]
-            );
-            throw new RemoteSolverException(sprintf("AntiCaptcha error: %s: %s", $decoded['errorId'], $decoded['errorDescription']));
-        }
-
-        if ($decoded['status'] == 'processing') {
+        if ($response['status'] == 'processing') {
             $this->getLogger()->debug("Task {TaskId} is still processing...", ['TaskId' => $taskId]);
             return true;
         }
 
-        if ($decoded['status'] == 'ready') {
+        if ($response['status'] == 'ready') {
             $this->getLogger()->debug("Task {TaskId} completed.", ['TaskId' => $taskId]);
-            return $decoded['solution']['gRecaptchaResponse'];
+            return $response['solution']['gRecaptchaResponse'];
         }
 
-        throw new RemoteSolverException(sprintf("Unknown status %s", $decoded['status']));
+        throw new RemoteSolverException(sprintf("Unknown status %s", $response['status']));
     }
 
     /**
@@ -198,21 +185,61 @@ class AntiCaptcha implements Solver
      *
      * @return array
      *
+     * @throws InvalidKeyException
+     * @throws BalanceTooLowException
      * @throws RemoteSolverException
+     * @throws CurrentlyUnavailableException
      */
     protected function createTask(string $challengeUrl) : array
     {
-        $postData = [
-            'clientKey' => $this->apiKey,
-            'task'      => array(
-                'type' => 'NoCaptchaTaskProxyLess',
-                'websiteURL'    => $challengeUrl,
-                'websiteKey'    => $this->siteKey
-            )
-        ];
+        try {
+            $response = $this->sendRequest('createTask', [
+                'task' => [
+                    'type'       => 'NoCaptchaTaskProxyless',
+                    'websiteURL' => $challengeUrl,
+                    'websiteKey' => $this->siteKey
+                ]
+            ]);
+        } catch (CurrentlyUnavailableException $e) {
+            $this->currentRetries++;
+
+            /* Rethrow if retryCount exceeded. */
+            if ($this->currentRetries > $this->retryCount) {
+                throw $e;
+            }
+
+            /* Wait a while */
+            sleep($this->retryInterval);
+
+            return $this->createTask($challengeUrl);
+        }
+
+        /* Reset retries */
+        $this->currentRetries = 0;
+
+        return $response;
+    }
+
+    /**
+     * Send a request to AntiCaptcha
+     *
+     * @param string $method
+     * @param array $postData
+     * @return array
+     *
+     * @throws BalanceTooLowException
+     * @throws CurrentlyUnavailableException
+     * @throws InvalidKeyException
+     * @throws RemoteSolverException
+     */
+    protected function sendRequest(string $method, array $postData) : array
+    {
+        $postData = array_merge([
+            'clientKey' => $this->apiKey
+        ], $postData);
 
         try {
-            $response = $this->getClient()->post(static::HOST . '/createTask', [
+            $response = $this->getClient()->post(static::HOST . '/' . $method, [
                 'json' => $postData,
                 'headers' => [
                     'Content-Type' => 'application/json'
@@ -223,7 +250,41 @@ class AntiCaptcha implements Solver
             throw new RemoteSolverException("Error creating AntiCaptcha task.", 0, $e);
         }
 
-        return json_decode($response->getBody(), true);
+        $jsonResponse = json_decode($response->getBody(), true);
+
+        if ($jsonResponse === false) {
+            $this->getLogger()->error("AntiCaptcha API error");
+            throw new RemoteSolverException("AntiCaptcha API Error. Invalid JSON response.");
+        }
+
+        if ($jsonResponse['errorId'] !== 0) {
+            $this->getLogger()->error(
+                "Received AntiCaptcha ErrorId: {ErrorId}: {ErrorDescription}",
+                [
+                    'ErrorId'          => $jsonResponse['errorId'],
+                    'ErrorDescription' => $jsonResponse['errorDescription']
+                ]
+            );
+
+            if ($jsonResponse['errorId'] == 1) {
+                $this->getLogger()->alert("AntiCaptcha key is invalid.");
+                throw new InvalidKeyException();
+            }
+
+            if ($jsonResponse['errorId'] == 2) {
+                $this->getLogger()->info("No idle workers available at the moment.");
+                throw new CurrentlyUnavailableException();
+            }
+
+            if ($jsonResponse['errorId'] == 10) {
+                $this->getLogger()->alert("Your AntiCaptcha balance is too low.");
+                throw new BalanceTooLowException();
+            }
+
+            throw new RemoteSolverException(sprintf("AntiCaptcha error: %s: %s", $jsonResponse['errorId'], $jsonResponse['errorDescription']));
+        }
+
+        return $jsonResponse;
     }
 
     /**
