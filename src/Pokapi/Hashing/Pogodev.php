@@ -130,7 +130,7 @@ class Pogodev implements Provider {
             'Latitude'    =>  $request->getPosition()->getLatitude(),
             'Longitude'   => $request->getPosition()->getLongitude(),
             'Altitude'    => $request->getPosition()->getAltitude(),
-            'AuthTicket'  => base64_encode($request->getAuthTicket()->toProto()->toStream()->getContents()),
+            'AuthTicket'  => base64_encode($request->getAuthData()->getData()),
             'SessionData' => base64_encode($request->getSessionHash()),
             'Requests'    => $requests
         );

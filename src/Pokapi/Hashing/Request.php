@@ -2,9 +2,8 @@
 namespace Pokapi\Hashing;
 
 use Pokapi\Request\Position;
-use Pokapi\Rpc\AuthTicket;
-use Pokapi\Rpc\Request as RpcRequest;
 use Pokapi\Version\Version;
+use Pokapi\Rpc\Request as RpcRequest;
 
 class Request
 {
@@ -15,9 +14,9 @@ class Request
     protected $version;
 
     /**
-     * @var AuthTicket
+     * @var AuthData
      */
-    protected $authTicket;
+    protected $authData;
 
     /**
      * @var Position
@@ -42,23 +41,23 @@ class Request
     /**
      * Request constructor.
      *
-     * @param Version      $version
-     * @param AuthTicket   $authTicket
-     * @param Position     $position
-     * @param int          $timestamp
-     * @param string       $sessionHash
-     * @param RpcRequest[] $requests
+     * @param Version       $version
+     * @param AuthData      $authData
+     * @param Position      $position
+     * @param int           $timestamp
+     * @param string        $sessionHash
+     * @param RpcRequest[]  $requests
      */
     public function __construct(
         Version $version,
-        AuthTicket $authTicket,
+        AuthData $authData,
         Position $position,
         int $timestamp,
         string $sessionHash,
         array $requests
     ) {
         $this->version     = $version;
-        $this->authTicket  = $authTicket;
+        $this->authData    = $authData;
         $this->position    = $position;
         $this->timestamp   = $timestamp;
         $this->sessionHash = $sessionHash;
@@ -74,11 +73,11 @@ class Request
     }
 
     /**
-     * @return AuthTicket
+     * @return AuthData
      */
-    public function getAuthTicket(): AuthTicket
+    public function getAuthData()
     {
-        return $this->authTicket;
+        return $this->authData;
     }
 
     /**

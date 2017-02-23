@@ -11,6 +11,9 @@ use POGOProtos\Networking\Responses\GetPlayerResponse;
 use POGOProtos\Networking\Responses\MarkTutorialCompleteResponse;
 use POGOProtos\Networking\Responses\VerifyChallengeResponse;
 use Pokapi\Authentication;
+use Pokapi\Captcha\Exception\Exception;
+use Pokapi\Captcha\Solver;
+use Pokapi\Exception\FailedCaptchaException;
 use Pokapi\Hashing;
 use Pokapi\Request\DeviceInfo;
 use Pokapi\Request\Position;
@@ -27,6 +30,7 @@ use Pokapi\Rpc\Requests\VerifyChallenge;
 use Pokapi\Rpc\Service;
 use Pokapi\Version\Version;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Class API
@@ -53,6 +57,16 @@ class API
     protected $service;
 
     /**
+     * @var Solver
+     */
+    protected $captchaSolver;
+
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * API constructor.
      *
      * @param Version                 $version
@@ -61,6 +75,7 @@ class API
      * @param DeviceInfo              $deviceInfo
      * @param Hashing\Provider|null   $hashingProvider
      * @param LoggerInterface|null    $logger
+     * @param Solver|null             $captchaSolver
      */
     public function __construct(
         Version $version,
@@ -68,11 +83,25 @@ class API
         Position $position,
         DeviceInfo $deviceInfo,
         Hashing\Provider $hashingProvider = null,
-        LoggerInterface $logger = null
+        LoggerInterface $logger = null,
+        Solver $captchaSolver = null
     ) {
-        $this->service    = new Service($version, $authProvider, $deviceInfo, $hashingProvider, 3, $logger);
-        $this->position   = $position;
-        $this->deviceInfo = $deviceInfo;
+        $this->service       = new Service($version, $authProvider, $deviceInfo, $hashingProvider, 3, $logger);
+        $this->position      = $position;
+        $this->deviceInfo    = $deviceInfo;
+        $this->captchaSolver = $captchaSolver;
+        $this->logger        = $logger;
+    }
+
+    /**
+     * @param Solver $solver
+     *
+     * @return API
+     */
+    public function setCaptchaSolver(Solver $solver) : self
+    {
+        $this->captchaSolver = $solver;
+        return $this;
     }
 
     /**
@@ -130,12 +159,49 @@ class API
     /**
      * Check if there is a CAPTCHA challenge.
      *
-     * @return CheckChallengeResponse
+     * Returns the challenge if there is
+     * Returns false if there is not.
+     *
+     * Will attempt to solve the Captcha if a Solver is defined.
+     *
+     * @return string|bool
+     *
+     * @throws Exception
+     * @throws FailedCaptchaException
      */
-    public function checkChallenge() : CheckChallengeResponse
+    public function checkChallenge()
     {
-        $request = new CheckChallenge();
-        return $this->service->execute($request, $this->position);
+        $request  = new CheckChallenge();
+
+        /** @var CheckChallengeResponse $response */
+        $response     =  $this->service->execute($request, $this->position);
+        $challengeUrl = trim($response->getChallengeUrl());
+
+        if ($response->getShowChallenge() || !empty($challengeUrl)) {
+            if (!$this->captchaSolver instanceof Solver) {
+                $this->getLogger()->alert("Account has been flagged for CAPTCHA. No CAPTCHA-solver defined, returning challenge.");
+                return $challengeUrl;
+            }
+
+            $this->getLogger()->alert("Account has been flagged for CAPTCHA. Attempting to solve CAPTCHA with defined resolver.");
+
+            /* Attempt to solve CAPTCHA */
+            $token = $this->captchaSolver->solve($challengeUrl);
+            $this->getLogger()->info("Received CAPTCHA solution. Verifying...");
+
+            /* Wait 1 second before firing verification request. */
+            sleep(1);
+            $verify = $this->verifyChallenge($token);
+
+            if ($verify->hasSuccess()) {
+                $this->getLogger()->info("Successfully solved CAPTCHA.");
+                return true;
+            }
+
+            throw new FailedCaptchaException("Failed to resolve CAPTCHA.");
+        }
+
+        return false;
     }
 
     /**
@@ -244,5 +310,19 @@ class API
     public function getService() : Service
     {
         return $this->service;
+    }
+
+    /**
+     * Get the logger
+     *
+     * @return LoggerInterface
+     */
+    protected function getLogger() : LoggerInterface
+    {
+        if (!$this->logger instanceof LoggerInterface) {
+            $this->logger = new NullLogger();
+        }
+
+        return $this->logger;
     }
 }

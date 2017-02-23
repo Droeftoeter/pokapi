@@ -158,7 +158,7 @@ class TrainersClub implements Provider
         $jsonData = json_decode($response->getBody()->getContents());
 
         if (!$jsonData || !isset($jsonData->execution)) {
-            throw new AuthenticationException("Could not retrieve execution token. Invalid JSON.");
+            throw new AuthenticationException("Could not retrieve execution token. Invalid JSON. TrainersClub could be offline or unstable.");
         }
 
         return $jsonData;
