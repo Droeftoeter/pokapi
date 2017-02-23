@@ -25,7 +25,7 @@ class Legacy implements Version
      */
     public function getUnknown25() : int
     {
-        return -1553869577012279119;
+        return -816976800928766045;
     }
 
     /**
