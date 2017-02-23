@@ -208,6 +208,13 @@ class AntiCaptcha implements Solver
                 throw $e;
             }
 
+            $this->getLogger()->info(
+                "AntiCaptcha is unavailable at this time. Retrying in {Time} seconds...",
+                [
+                    'Time' => $this->retryInterval
+                ]
+            );
+
             /* Wait a while */
             sleep($this->retryInterval);
 
