@@ -9,7 +9,7 @@ class Latest implements Version
      */
     public function getVersion() : int
     {
-        return 5702;
+        return 5703;
     }
 
     /**
@@ -17,7 +17,7 @@ class Latest implements Version
      */
     public function getAndroidVersion() : string
     {
-        return "0.57.2";
+        return "0.57.3";
     }
 
     /**
