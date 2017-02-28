@@ -169,7 +169,7 @@ class Service
 
         $this->retryCount   = $throttleRetryCount;
         $this->rsc          = 0;
-        $this->rscThreshold = 5;
+        $this->rscThreshold = 12;
         $this->startTime    = round(microtime(true) * 1000);
 
         $this->hashingProvider = $hashingProvider !== null ? $hashingProvider : new Hashing\Native();
