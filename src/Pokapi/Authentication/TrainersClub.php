@@ -17,9 +17,11 @@ use Pokapi\Exception\NoTokenException;
 class TrainersClub implements Provider
 {
 
-    const LOGIN_URL = 'https://sso.pokemon.com/sso/login?service=https%3A%2F%2Fsso.pokemon.com%2Fsso%2Foauth2.0%2FcallbackAuthorize';
+    const LOGIN_URL = 'https://sso.pokemon.com/sso/login?service=https%3A%2F%2Fsso.pokemon.com%2Fsso%2Foauth2.0%2FcallbackAuthorize&locale=en';
     const LOGIN_OAUTH = 'https://sso.pokemon.com/sso/oauth2.0/accessToken';
     const LOGIN_SECRET = 'w8ScCUXJQc6kXKw8FiOhd8Fixzht18Dq3PEVkUCP5ZPxtgyWsbTvWHFLm2wNY0JR';
+
+    const REDIRECT_URL = 'https://www.nianticlabs.com/pokemongo/error';
 
     /**
      * @var Client
@@ -76,9 +78,9 @@ class TrainersClub implements Provider
 
         // Make request
         try {
-            $this->client->post(self::LOGIN_URL, [
+            $this->client->post(static::LOGIN_URL, [
                 'headers' => [
-                    'User-Agent' => 'niantic'
+                    'User-Agent' => 'pokemongo/1 CFNetwork/808.2.16 Darwin/16.3.0'
                 ],
                 'allow_redirects' => [
                     'on_redirect' => function(Request $request, Response $response) use (&$ticket){
@@ -107,14 +109,14 @@ class TrainersClub implements Provider
 
         // Make oAuth request
         try {
-            $response = $this->client->post(self::LOGIN_OAUTH, [
+            $response = $this->client->post(static::LOGIN_OAUTH, [
                 'headers' => [
                     'User-Agent' => 'niantic'
                 ],
                 'form_params' => [
                     'client_id' => 'mobile-app_pokemon-go',
-                    'redirect_uri' => 'https://www.nianticlabs.com/pokemongo/error',
-                    'client_secret' => self::LOGIN_SECRET,
+                    'redirect_uri' => static::REDIRECT_URL,
+                    'client_secret' => static::LOGIN_SECRET,
                     'grant_type' => 'refresh_token',
                     'code' => $ticket
                 ]
@@ -141,7 +143,7 @@ class TrainersClub implements Provider
     protected function fetchExecutionToken()
     {
         try {
-            $response = $this->client->get(self::LOGIN_URL, [
+            $response = $this->client->get(static::LOGIN_URL, [
                 'headers' => [
                     'User-Agent' => 'niantic'
                 ]
