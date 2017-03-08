@@ -17,7 +17,7 @@ use Pokapi\Exception\NoTokenException;
 class TrainersClub implements Provider
 {
 
-    const LOGIN_URL = 'https://sso.pokemon.com/sso/login?service=https%3A%2F%2Fsso.pokemon.com%2Fsso%2Foauth2.0%2FcallbackAuthorize';
+    const LOGIN_URL = 'https://sso.pokemon.com/sso/login?service=https%3A%2F%2Fsso.pokemon.com%2Fsso%2Foauth2.0%2FcallbackAuthorize&locale=en';
     const LOGIN_OAUTH = 'https://sso.pokemon.com/sso/oauth2.0/accessToken';
     const LOGIN_SECRET = 'w8ScCUXJQc6kXKw8FiOhd8Fixzht18Dq3PEVkUCP5ZPxtgyWsbTvWHFLm2wNY0JR';
 
