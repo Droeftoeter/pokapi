@@ -136,6 +136,11 @@ class Service
     protected $rscThreshold;
 
     /**
+     * @var int
+     */
+    protected $lastLocationFix;
+
+    /**
      * Service constructor.
      *
      * @param Version                 $version
@@ -476,7 +481,7 @@ class Service
         $platformRequest->setRequestMessage($encryptedSigRequest->toStream());
         $envelope->addPlatformRequests($platformRequest);
 
-        $envelope->setMsSinceLastLocationfix(rand(200, 800));
+        $envelope->setMsSinceLastLocationfix(round(microtime(true) * 1000) - $this->lastLocationFix);
 
         return $envelope;
     }
@@ -524,7 +529,7 @@ class Service
 
         $signature->setDeviceInfo($this->deviceInfo->toProtobuf());
 
-        foreach ($this->generateLocationFixes($position) as $fix) {
+        foreach ($this->generateLocationFixes($position, $time) as $fix) {
             $signature->addLocationFix($fix);
         }
 
@@ -551,16 +556,17 @@ class Service
      * Generate a list of location fixes
      *
      * @param Position $position
+     * @param int      $timestamp
      *
      * @return Signature\LocationFix[]
      */
-    protected function generateLocationFixes(Position $position) : array
+    protected function generateLocationFixes(Position $position, int $timestamp) : array
     {
         $amount = rand(3,5);
         $fixes = [];
 
         for($i = 0; $i < $amount; $i++) {
-            $fixes[] = $this->generateLocationFix($position);
+            $fixes[] = $this->generateLocationFix($position, $timestamp);
         }
 
         return $fixes;
@@ -570,21 +576,25 @@ class Service
      * Generate a location fix
      *
      * @param Position $position
+     * @param int      $timestamp
      *
      * @return Signature\LocationFix
      */
-    protected function generateLocationFix(Position $position) : Signature\LocationFix
+    protected function generateLocationFix(Position $position, int $timestamp) : Signature\LocationFix
     {
         $location = $position->createRandomized();
+        $fixTime  = $timestamp - (mt_rand(700, 1200));
 
         $locationFix = new Signature\LocationFix();
         $locationFix->setProvider("network");
         $locationFix->setProviderStatus(3);
         $locationFix->setLocationType(1);
-        $locationFix->setTimestampSnapshot(rand(10000,35000));
+        $locationFix->setTimestampSnapshot($fixTime);
         $locationFix->setAltitude($location->getAltitude());
         $locationFix->setLongitude($location->getLongitude());
         $locationFix->setLatitude($location->getAltitude());
+
+        $this->lastLocationFix = $fixTime;
 
         return $locationFix;
     }

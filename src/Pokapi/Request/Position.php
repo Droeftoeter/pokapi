@@ -97,7 +97,7 @@ class Position
      *
      * @return Position
      */
-    public function createRandomized($minDistance = -0.005, $maxDistance = 0.005)
+    public function createRandomized($minDistance = -0.010, $maxDistance = 0.010)
     {
         $newCoordinates = Geo::calculateNewCoordinates($this->latitude, $this->longitude, Random::randomFloat($minDistance, $maxDistance), rand(0,360));
         $newAltitude    = $this->altitude + round(Random::randomFloat(-2, 2), 2);
